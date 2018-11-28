@@ -7,7 +7,7 @@ for f = fnames'
     if f.isdir
         continue
     end
-    fname = f.name
+    fname = f.name;
     isp = 0;
     ise = 0;
     if strfind(fname, pre) == 1
@@ -26,6 +26,7 @@ for f = fnames'
         str_fnames = sprintf('%s\n%s', str_fnames, f.name);
     end
 end
+str_fnames = str_fnames(2:end);
 
 end
 

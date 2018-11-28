@@ -22,7 +22,7 @@ function varargout = gui_operation(varargin)
 
 % Edit the above text to modify the response to help gui_operation
 
-% Last Modified by GUIDE v2.5 27-Nov-2018 16:22:18
+% Last Modified by GUIDE v2.5 28-Nov-2018 11:09:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -78,7 +78,7 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-disp('button load path clicked')
+
 dirname = uigetdir();
 % squeeze . and ..
 dirname = dirname(3:end);
@@ -86,9 +86,19 @@ dirname = dirname(3:end);
 set(handles.uipanel1, 'Title', dirname)
 [str_fnames, str_pres, str_exts] = parse_dir_filename(dirname);
 set(handles.popupmenu1, 'String', str_pres)
+set(handles.popupmenu1, 'Value', 1)
 set(handles.popupmenu2, 'String', str_exts)
-set(handles.text2, 'String', str_fnames)
+set(handles.popupmenu2, 'Value', 1)
 
+set(handles.text2, 'UserData', str_fnames)
+[numbered_str_fnames, len] = number_filenames(str_fnames);
+set(handles.text2, 'String', numbered_str_fnames)
+set(handles.slider2, 'Visible', 'On')
+set(handles.slider2, 'Value', 1)
+
+set(handles.text3, 'String', sprintf('(%d files selected.)', len))
+disp('Lastest selected files:')
+disp(numbered_str_fnames)
 
 % --- Executes on selection change in popupmenu1.
 function popupmenu1_Callback(hObject, eventdata, handles)
@@ -103,8 +113,16 @@ pre_contents = cellstr(get(handles.popupmenu1, 'String'));
 pre = pre_contents{get(handles.popupmenu1, 'Value')};
 ext_contents = cellstr(get(handles.popupmenu2, 'String'));
 ext = ext_contents{get(handles.popupmenu2, 'Value')};
+
 str_fnames = select_dir_filename(dirname, pre, ext);
-set(handles.text2, 'String', str_fnames);
+set(handles.text2, 'UserData', str_fnames)
+[numbered_str_fnames, len] = number_filenames(str_fnames);
+set(handles.text2, 'String', numbered_str_fnames)
+set(handles.slider2, 'Value', 1)
+
+set(handles.text3, 'String', sprintf('(%d files selected.)', len))
+disp('Lastest selected files:')
+disp(numbered_str_fnames)
 
 
 % --- Executes during object creation, after setting all properties.
@@ -133,8 +151,16 @@ pre_contents = cellstr(get(handles.popupmenu1, 'String'));
 pre = pre_contents{get(handles.popupmenu1, 'Value')};
 ext_contents = cellstr(get(handles.popupmenu2, 'String'));
 ext = ext_contents{get(handles.popupmenu2, 'Value')};
+
 str_fnames = select_dir_filename(dirname, pre, ext);
-set(handles.text2, 'String', str_fnames);
+set(handles.text2, 'UserData', str_fnames)
+[numbered_str_fnames, len] = number_filenames(str_fnames);
+set(handles.text2, 'String', numbered_str_fnames)
+set(handles.slider2, 'Value', 1)
+
+set(handles.text3, 'String', sprintf('(%d files selected.)', len))
+disp('Lastest selected files:')
+disp(numbered_str_fnames)
 
 
 % --- Executes during object creation, after setting all properties.
@@ -151,18 +177,20 @@ end
 
 
 % --- Executes on slider movement.
-function slider1_Callback(hObject, eventdata, handles)
-% hObject    handle to slider1 (see GCBO)
+function slider2_Callback(hObject, eventdata, handles)
+% hObject    handle to slider2 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
+v = get(hObject, 'value');
+str_fnames = get(handles.text2, 'UserData');
+set(handles.text2, 'String', number_filenames(str_fnames, v))
 
 % --- Executes during object creation, after setting all properties.
-function slider1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider1 (see GCBO)
+function slider2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider2 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

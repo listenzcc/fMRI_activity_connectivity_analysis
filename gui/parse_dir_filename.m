@@ -17,6 +17,7 @@ for f = fnames'
     pres(pre) = 1;
     exts(ext) = 1;
 end
+str_fnames = str_fnames(2:end);
 
 keys_pres = keys(pres);
 str_pres = '--';
