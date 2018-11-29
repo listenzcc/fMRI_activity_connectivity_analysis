@@ -78,7 +78,20 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton2 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-a = files_selection
+
+pathname = uigetdir();
+set(hObject, 'UserData', pathname)
+[fname_map, pre_map, ext_map, path_map] = fun_parse_files_in_path(pathname);
+if isKey(ext_map, '.IMA')
+    set(handles.pushbutton3, 'Enable', 'On')
+end
+if isKey(path_map, '_____preprocessed_4')
+    set(handles.pushbutton4, 'Enable', 'On')
+end
+if isKey(path_map, '_____GLManalysis_12345')
+    set(handles.pushbutton5, 'Enable', 'On')
+end
+set(handles.text2, 'String', pathname)
 
 
 % --- Executes on button press in pushbutton3.
@@ -86,6 +99,13 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton3 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+pathname = get(handles.pushbutton2, 'UserData');
+set(hObject, 'Enable', 'Off')
+fun_preprocess_1(pathname, hObject)
+fun_preprocess_2(pathname, hObject)
+fun_preprocess_3(pathname, hObject)
+fun_preprocess_4(pathname, hObject)
+set(hObject, 'Enable', 'On')
 
 
 % --- Executes on button press in pushbutton4.
