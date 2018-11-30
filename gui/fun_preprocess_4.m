@@ -11,13 +11,13 @@ set(hObject, 'String', '(4/4)功能像平滑中...')
 pause(1)
 
 workpath = fullfile(pathname, '_____preprocessed_3');
-load('b_smooth.mat', 'matlabbatch')
+load(fullfile('resources', 'b_smooth.mat'), 'matlabbatch')
 
-wfuncfiles = dir(fullfile(workpath, 'wf*.nii'));
-len = length(wfuncfiles);
+load(fullfile(workpath, 'fun_filenames.mat'), 'fun_filenames')
+len = length(fun_filenames);
 data = cell(len, 1);
 for j = 1 : len
-    data{j} = [fullfile(workpath, wfuncfiles(j).name), ',1'];
+    data{j} = [fullfile(workpath, ['w', fun_filenames{j}]), ',1'];
 end
 matlabbatch{1}.spm.spatial.smooth.data = data;
 

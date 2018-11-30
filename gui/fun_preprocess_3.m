@@ -11,19 +11,20 @@ set(hObject, 'String', '(3/4)功能结构配准中...')
 pause(1)
 
 workpath = fullfile(pathname, '_____preprocessed_2');
-load('b_normalise.mat', 'matlabbatch')
+load(fullfile('resources', 'b_normalise.mat'), 'matlabbatch')
 
-matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.tpm = {'b_TPM.nii'};
+matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.tpm =...
+    {fullfile('resources', 'b_TPM.nii')};
 
-meanfile = dir(fullfile(workpath, 'meanf*.nii'));
+meanfile = dir(fullfile(workpath, 'mean*.nii'));
 vol = [fullfile(workpath, meanfile.name), ',1'];
 matlabbatch{1}.spm.spatial.normalise.estwrite.subj.vol = {vol};
 
-funcfiles = dir(fullfile(workpath, 'f*.nii'));
-len = length(funcfiles);
+load(fullfile(workpath, 'fun_filenames.mat'), 'fun_filenames')
+len = length(fun_filenames);
 resample = cell(len, 1);
 for j = 1 : len
-    resample{j} = [fullfile(workpath, funcfiles(j).name), ',1'];
+    resample{j} = [fullfile(workpath, fun_filenames{j}), ',1'];
 end
 matlabbatch{1}.spm.spatial.normalise.estwrite.subj.resample = resample;
 
