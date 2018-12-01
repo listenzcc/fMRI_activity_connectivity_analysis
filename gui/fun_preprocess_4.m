@@ -6,10 +6,6 @@ for j = 4
     end
 end
 
-rawstr = get(hObject, 'String');
-set(hObject, 'String', '(4/4)功能像平滑中...')
-pause(1)
-
 workpath = fullfile(pathname, '_____preprocessed_3');
 load(fullfile('resources', 'b_smooth.mat'), 'matlabbatch')
 
@@ -27,7 +23,5 @@ spm_jobman('run', matlabbatch)
 movefile(...
     fullfile(pathname, '_____preprocessed_3'),...
     fullfile(pathname, '_____preprocessed_4'));
-
-set(hObject, 'String', rawstr)
 
 end

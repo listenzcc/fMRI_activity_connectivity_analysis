@@ -6,10 +6,6 @@ for j = 3 : 4
     end
 end
 
-rawstr = get(hObject, 'String');
-set(hObject, 'String', '(3/4)功能结构配准中...')
-pause(1)
-
 workpath = fullfile(pathname, '_____preprocessed_2');
 load(fullfile('resources', 'b_normalise.mat'), 'matlabbatch')
 
@@ -34,7 +30,5 @@ spm_jobman('run', matlabbatch)
 movefile(...
     fullfile(pathname, '_____preprocessed_2'),...
     fullfile(pathname, '_____preprocessed_3'));
-
-set(hObject, 'String', rawstr)
 
 end

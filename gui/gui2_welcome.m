@@ -22,7 +22,7 @@ function varargout = gui2_welcome(varargin)
 
 % Edit the above text to modify the response to help gui2_welcome
 
-% Last Modified by GUIDE v2.5 30-Nov-2018 22:09:17
+% Last Modified by GUIDE v2.5 01-Dec-2018 21:51:23
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -79,9 +79,36 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 ud = files_selection;
+try
+    firstfile = fullfile(ud.pathname, ud.filenames{1});
+catch
+    return
+end
+
+di = dicominfo(firstfile);
+info = struct;
+info.FileModDate = di.FileModDate;
+info.PatientName = di.PatientName;
+info.PatientSex = di.PatientSex;
+info.PatientAge = di.PatientAge;
+info.RepetitionTime = di.RepetitionTime;
+disp(info);
+
+str = sprintf('Name: %s  %s',...
+    di.PatientName.FamilyName, di.PatientName.GivenName);
+str = sprintf('%s\nSex:  %s', str, di.PatientSex);
+str = sprintf('%s\nAge:  %s', str, di.PatientAge);
+str = sprintf('%s\nScan: %s', str, di.FileModDate);
+str = sprintf('%s\nTR:   %d', str, di.RepetitionTime);
+set(handles.text3, 'String', str)
+
 set(hObject, 'UserData', ud)
 set(handles.pushbutton2, 'String', '开始计算')
 set(handles.pushbutton2, 'Enable', 'On')
+set(handles.checkbox1, 'Enable', 'On')
+set(handles.checkbox2, 'Enable', 'On')
+set(handles.checkbox1, 'Value', 1)
+set(handles.checkbox2, 'Value', 0)
 
 
 % --- Executes on button press in pushbutton2.
@@ -90,18 +117,72 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 ud = get(handles.pushbutton1, 'UserData');
+
+firstfile = fullfile(ud.pathname, ud.filenames{1});
+DicomInfo = dicominfo(firstfile);
+TR = DicomInfo.RepetitionTime / 1000;
+s = md5(firstfile);
+
+new_pathname = fullfile(pwd, 'subjects', s);
+[a, b, c] = mkdir(new_pathname);
+save(fullfile(new_pathname, 'TR'), 'TR')
+save(fullfile(new_pathname, 'DicomInfo'), 'DicomInfo')
+save(fullfile(new_pathname, 'ud'), 'ud')
+
 set(hObject, 'Enable', 'Off')
-fun_preprocess_1(ud.pathname, ud.filenames, hObject)
-fun_preprocess_2(ud.pathname, hObject)
-fun_preprocess_3(ud.pathname, hObject)
-fun_preprocess_4(ud.pathname, hObject)
-fun_GLM(ud.pathname, hObject)
+rawstr = get(hObject, 'String');
+
+set(hObject, 'String', '(1/7) 数 据 读 取 中 ...')
+pause(1)
+fun_preprocess_1(new_pathname, ud.pathname, ud.filenames, hObject)
+
+set(hObject, 'String', '(2/7) 功 能 像 对 齐 中 ...')
+pause(1)
+fun_preprocess_2(new_pathname, hObject)
+
+set(hObject, 'String', '(3/7) 功 能 结 构 配 准 中 ...')
+pause(1)
+fun_preprocess_3(new_pathname, hObject)
+
+set(hObject, 'String', '(4/7) 功 能 像 平 滑 中 ...')
+pause(1)
+fun_preprocess_4(new_pathname, hObject)
+
+set(hObject, 'String', '(5/7) 头 动 误 差 统 计 ...')
+pause(1)
+hm_max = fun_plot_artificial(new_pathname, handles.axes1, handles.axes2)
+
+set(hObject, 'String', '(6/7) 激 活 分 析 中 ...')
+pause(1)
+fun_GLM(new_pathname, hObject)
+if get(handles.checkbox1, 'Value') == 1
+    gg = 1;
+else
+    gg = 0;
+end
+if get(handles.checkbox2, 'Value') == 1
+    hh = 1;
+else
+    hh = 0;
+end
+max_p = fun_findmax_amy(new_pathname, gg, hh, handles.axes3);
+
+set(hObject, 'String', '(7/7) 功 能 连 接 分 析 中 ...')
+pause(1)
+max_c_mm = fun_findmax_corr(new_pathname, max_p)
+
+set(handles.text5, 'String',...
+    sprintf('TMS靶点坐标建议值\n%dmm, %dmm, %dmm',...
+    max_c_mm(1), max_c_mm(2), max_c_mm(3)))
+
+set(handles.uibuttongroup1, 'Visible', 'On')
+set(handles.axes1, 'Visible', 'On')
+set(handles.axes2, 'Visible', 'On')
+set(handles.axes3, 'Visible', 'On')
+set(handles.text5, 'Visible', 'On')
+
+set(hObject, 'String', rawstr);
 set(hObject, 'Enable', 'On')
-
-hm_max = fun_plot_artificial(ud.pathname, handles.axes1, handles.axes2)
-fun_findmax_amy(ud.pathname, handles.axes3)
-
-set(handles.pushbutton3, 'Enable', 'On')
 
 
 % --- Executes on button press in pushbutton3.
@@ -110,6 +191,7 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 ud = get(handles.pushbutton1, 'UserData')
+
 
 % --- Executes on button press in togglebutton1.
 function togglebutton1_Callback(hObject, eventdata, handles)
@@ -240,4 +322,83 @@ if get(hObject, 'Value')
     set(a, 'Position', get(this, 'Position'))
     set(this, 'Position', p);
     set(handles.uipanel1, 'UserData', 'handles.axes3')
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function axes11_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to axes11 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: place code in OpeningFcn to populate axes11
+img = imread(fullfile('resources', 'logo.tif'));
+image(hObject, img)
+set(hObject, 'Box', 'Off')
+set(hObject, 'XTick', [])
+set(hObject, 'YTick', [])
+
+
+% --- Executes on button press in checkbox1.
+function checkbox1_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox1
+
+
+% --- Executes on button press in checkbox2.
+function checkbox2_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox2
+
+
+% --- Executes on selection change in popupmenu1.
+function popupmenu1_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu1 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu1
+contents = cellstr(get(hObject,'String'));
+str = contents{get(hObject,'Value')};
+if strcmp(str, '--')
+    return
+end
+cel = strsplit(str, ', ');
+str_MD5 = cel{length(cel)};
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+subject_dir = fullfile(pwd, 'subjects');
+[fname_map, pre_map, ext_map, path_map] = fun_parse_files_in_path(subject_dir);
+for k = keys(path_map)
+    e = k{1}; % MD5 dirname
+    [fname_map, pre_map, ext_map, path_map] =...
+        fun_parse_files_in_path(fullfile(subject_dir, e));
+    if isKey(fname_map, 'DicomInfo.mat')
+        load(fullfile(subject_dir, e, 'DicomInfo.mat'), 'DicomInfo')
+        subject_name = sprintf('%s %s',...
+            DicomInfo.PatientName.FamilyName,...
+            DicomInfo.PatientName.GivenName);
+        set(hObject, 'String', sprintf('%s\n%s, %s',...
+            get(hObject, 'String'),...
+            subject_name, e))
+    end
 end

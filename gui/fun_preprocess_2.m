@@ -6,10 +6,6 @@ for j = 2 : 4
     end
 end
 
-rawstr = get(hObject, 'String');
-set(hObject, 'String', '(2/4)功能像对齐中...')
-pause(1)
-
 workpath = fullfile(pathname, '_____preprocessed_1');
 load(fullfile('resources', 'b_realign.mat'), 'matlabbatch')
 
@@ -28,7 +24,5 @@ spm_jobman('run', matlabbatch)
 movefile(...
     fullfile(pathname, '_____preprocessed_1'),...
     fullfile(pathname, '_____preprocessed_2'));
-
-set(hObject, 'String', rawstr)
 
 end

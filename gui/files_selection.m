@@ -71,6 +71,7 @@ set(handles.listbox1, 'String', cell_goodfnames)
 set(handles.text6, 'String',...
     sprintf('%d files selected, listed below:', length(cell_goodfnames)))
 
+
 % --- Executes just before files_selection is made visible.
 function files_selection_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -97,6 +98,7 @@ function varargout = files_selection_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
+
 varargout{1} = handles.output;
 
 delete(handles.figure1);
@@ -173,6 +175,7 @@ mapset = containers.Map;
 mapset('.*') = 0;
 set(hObject, 'UserData', mapset)
 set(hObject, 'String', '.*')
+
 
 % --- Executes on selection change in listbox1.
 function listbox1_Callback(hObject, eventdata, handles)
