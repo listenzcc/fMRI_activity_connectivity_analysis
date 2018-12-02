@@ -1,4 +1,4 @@
-function max_p = fun_findmax_amy(pathname, gg, hh, axe)
+function max_p = fun_findmax_amy(pathname, gg, hh, cm, axe, handles)
 
 %% get all voxels in ROI as mm
 amyfile = fullfile('resources', 'ROIs', 'amy.nii');
@@ -88,7 +88,15 @@ title('杏仁核区域脑活动曲线')
 
 TMP_fname = fullfile(pwd, 'resources', 'canonical', 'avg152T1.nii');
 cond.TR = TR;
-fig = fun_plot_3D4D(TMP_fname, dd, d_spmT, v_spmT, max_mm, cond);
+
+dummy = struct;
+dummy.fig = handles.figure1;
+dummy.axe1 = handles.axes_1;
+dummy.axe2 = handles.axes_2;
+dummy.axe3 = handles.axes_3;
+dummy.axe4 = handles.axes_4;
+
+fig = fun_plot_3D4D(TMP_fname, dd, d_spmT, v_spmT, max_mm, cond, cm, [], dummy);
 set(fig, 'NumberTitle', 'Off', 'Name', '杏仁核中的最强激活位置')
 
 end

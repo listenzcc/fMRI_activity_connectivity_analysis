@@ -65,6 +65,7 @@ set(gca, 'UserData', ud)
 %  ±º‰–Ú¡–
 ud = struct;
 set(fig, 'CurrentAxes', axe4)
+
 plot(squeeze(img_4D(p_4D(1), p_4D(2), p_4D(3), :)), 'color', 'white')
 hold on
 ts = squeeze(img_4D(p_4D(1), p_4D(2), p_4D(3), :));
@@ -85,6 +86,12 @@ for j = 1 : n
         [cond.onset(j)/TR, yl(1), cond.duration(j)/TR, yl(2)-yl(1)],...
         'facecolor', 0.5+zeros(1, 4), 'edgecolor', 0.5+zeros(1, 4));
 end
+
+set(gca, 'XLim', [1, length(ts)])
+set(gca, 'Box', 'Off')
+set(gca, 'XTick', [])
+set(gca, 'YTick', [])
+
 ud.rect = rect;
 
 set(gca, 'UserData', ud)

@@ -1,4 +1,4 @@
-function max_c_mm = fun_findmax_corr(pathname, max_p)
+function max_c_mm = fun_findmax_corr(pathname, max_p, cm, handles)
 
 %% get all voxels in ROI as mm
 ROIfile = fullfile('resources', 'ROIs', 'ROI1.nii');
@@ -58,7 +58,15 @@ load(fullfile(pathname, 'TR.mat'), 'TR')
 load(fullfile('resources', 'b_cond.mat'), 'cond')
 cond.TR = TR;
 max_c_mm = fun_position2mm(max_c_p, mat_over);
-fig = fun_plot_3D4D(TMP_fname, img_4D, img_over, v_4D, max_c_mm, cond, 0);
+
+dummy = struct;
+dummy.fig = handles.figure1;
+dummy.axe1 = handles.axes_5;
+dummy.axe2 = handles.axes_6;
+dummy.axe3 = handles.axes_7;
+dummy.axe4 = handles.axes_8;
+
+fig = fun_plot_3D4D(TMP_fname, img_4D, img_over, v_4D, max_c_mm, cond, cm, 0, dummy);
 set(fig, 'NumberTitle', 'Off', 'Name', 'MPFC中最强功能连接位置，即TMS靶点')
 end
 

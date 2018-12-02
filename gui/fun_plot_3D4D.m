@@ -1,28 +1,45 @@
-function fig = fun_plot_3D4D(TMP_fname, img_4D, img_over, v_4D, mm, cond, threshold)
+function fig = fun_plot_3D4D(TMP_fname, img_4D, img_over, v_4D, mm, cond, cm, threshold, dummy)
+
+if nargin < 9 || isempty(dummy)
+    isdummy = false;
+else
+    isdummy = true;
+end
+
 v_TMP = spm_vol(TMP_fname);
 mat_TMP = v_TMP.mat;
 img_TMP = spm_read_vols(v_TMP);
 mat_4D = v_4D.mat;
 mat_over = mat_4D;
 
-load(fullfile('.', 'resources', 'cm.mat'), 'cm')
+if nargin < 8 ||  isempty(threshold)
+    p = floor(fun_mm2position(mm, mat_over));
+    threshold = img_over(p(1), p(2), p(3)) / 2;
+end
 
-fig = figure;
-axe1 = subplot(2, 2, 2);
-axe2 = subplot(2, 2, 1);
-axe3 = subplot(2, 2, 4);
-axe4 = subplot(2, 2, 3);
+if isdummy
+    fig = dummy.fig;
+    axe1 = dummy.axe1;
+    axe2 = dummy.axe2;
+    axe3 = dummy.axe3;
+    axe4 = dummy.axe4;
+else
+    fig = figure;
+    axe1 = subplot(2, 2, 2);
+    axe2 = subplot(2, 2, 1);
+    axe3 = subplot(2, 2, 4);
+    axe4 = subplot(2, 2, 3);
+end
 
 fun_draw_TMP(mm, img_TMP, mat_TMP, img_4D, mat_4D,...
     fig, axe1, axe2, axe3, axe4, cm, cond)
 
-if nargin < 7 ||  isempty(threshold)
-    p = floor(fun_mm2position(mm, mat_over));
-    threshold = img_over(p(1), p(2), p(3)) / 2;
-end
 fun_draw_overlap(mm, img_TMP, mat_TMP, img_over, mat_over,...
     axe1, axe2, axe3, threshold)
 
+if isdummy
+    return
+end
 set(fig, 'WindowButtonMotionFcn', @ButttonMotionFcn)
 set(fig, 'WindowButtonUpFcn', @ButttonUpFcn)
 user_data.axe1 = axe1;

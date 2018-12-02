@@ -22,7 +22,7 @@ function varargout = gui2_welcome(varargin)
 
 % Edit the above text to modify the response to help gui2_welcome
 
-% Last Modified by GUIDE v2.5 01-Dec-2018 21:51:23
+% Last Modified by GUIDE v2.5 02-Dec-2018 14:46:18
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -78,22 +78,14 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-ud = files_selection;
 try
-    firstfile = fullfile(ud.pathname, ud.filenames{1});
+    ud = files_selection;
 catch
     return
 end
+firstfile = fullfile(ud.pathname, ud.filenames{1});
 
 di = dicominfo(firstfile);
-info = struct;
-info.FileModDate = di.FileModDate;
-info.PatientName = di.PatientName;
-info.PatientSex = di.PatientSex;
-info.PatientAge = di.PatientAge;
-info.RepetitionTime = di.RepetitionTime;
-disp(info);
-
 str = sprintf('Name: %s  %s',...
     di.PatientName.FamilyName, di.PatientName.GivenName);
 str = sprintf('%s\nSex:  %s', str, di.PatientSex);
@@ -165,17 +157,20 @@ if get(handles.checkbox2, 'Value') == 1
 else
     hh = 0;
 end
-max_p = fun_findmax_amy(new_pathname, gg, hh, handles.axes3);
+load(fullfile(pwd, 'resources', 'cm.mat'), 'cm')
+max_p = fun_findmax_amy(new_pathname, gg, hh, cm, handles.axes3, handles);
+set(handles.uibuttongroup1, 'Visible', 'On')
 
 set(hObject, 'String', '(7/7) 功 能 连 接 分 析 中 ...')
 pause(1)
-max_c_mm = fun_findmax_corr(new_pathname, max_p)
+max_c_mm = fun_findmax_corr(new_pathname, max_p, cm, handles)
+
+set(handles.pushbutton5, 'Enable', 'On')
 
 set(handles.text5, 'String',...
     sprintf('TMS靶点坐标建议值\n%dmm, %dmm, %dmm',...
     max_c_mm(1), max_c_mm(2), max_c_mm(3)))
 
-set(handles.uibuttongroup1, 'Visible', 'On')
 set(handles.axes1, 'Visible', 'On')
 set(handles.axes2, 'Visible', 'On')
 set(handles.axes3, 'Visible', 'On')
@@ -325,20 +320,6 @@ if get(hObject, 'Value')
 end
 
 
-% --- Executes during object creation, after setting all properties.
-function axes11_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to axes11 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: place code in OpeningFcn to populate axes11
-img = imread(fullfile('resources', 'logo.tif'));
-image(hObject, img)
-set(hObject, 'Box', 'Off')
-set(hObject, 'XTick', [])
-set(hObject, 'YTick', [])
-
-
 % --- Executes on button press in checkbox1.
 function checkbox1_Callback(hObject, eventdata, handles)
 % hObject    handle to checkbox1 (see GCBO)
@@ -367,11 +348,47 @@ function popupmenu1_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from popupmenu1
 contents = cellstr(get(hObject,'String'));
 str = contents{get(hObject,'Value')};
+
+set(handles.text3, 'String', '--')
+set(handles.pushbutton2, 'String', '开始计算')
+set(handles.pushbutton2, 'Enable', 'Off')
+set(handles.checkbox1, 'Enable', 'Off')
+set(handles.checkbox2, 'Enable', 'Off')
+
+set(handles.text5, 'Visible', 'Off')
+set(handles.uibuttongroup1, 'Visible', 'Off')
+
+set(handles.pushbutton5, 'Enable', 'Off')
+set(handles.pushbutton5, 'String', '>>')
+p = get(handles.figure1, 'Position');
+set(handles.figure1, 'Position', [p(1), p(2), 600, p(4)])
+
 if strcmp(str, '--')
     return
 end
-cel = strsplit(str, ', ');
-str_MD5 = cel{length(cel)};
+
+set_subjects = get(hObject, 'UserData');
+dir_subject = set_subjects(str);
+load(fullfile(dir_subject, 'ud'), 'ud')
+
+firstfile = fullfile(ud.pathname, ud.filenames{1});
+
+di = dicominfo(firstfile);
+str = sprintf('Name: %s  %s',...
+    di.PatientName.FamilyName, di.PatientName.GivenName);
+str = sprintf('%s\nSex:  %s', str, di.PatientSex);
+str = sprintf('%s\nAge:  %s', str, di.PatientAge);
+str = sprintf('%s\nScan: %s', str, di.FileModDate);
+str = sprintf('%s\nTR:   %d', str, di.RepetitionTime);
+set(handles.text3, 'String', str)
+
+set(handles.pushbutton1, 'UserData', ud)
+set(handles.pushbutton2, 'String', '开始计算')
+set(handles.pushbutton2, 'Enable', 'On')
+set(handles.checkbox1, 'Enable', 'On')
+set(handles.checkbox2, 'Enable', 'On')
+set(handles.checkbox1, 'Value', 1)
+set(handles.checkbox2, 'Value', 0)
 
 
 % --- Executes during object creation, after setting all properties.
@@ -386,19 +403,68 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+set(hObject, 'String', '--')
+
 subject_dir = fullfile(pwd, 'subjects');
 [fname_map, pre_map, ext_map, path_map] = fun_parse_files_in_path(subject_dir);
+
+set_subjects = containers.Map;
 for k = keys(path_map)
-    e = k{1}; % MD5 dirname
+    str_MD5 = k{1}; % MD5 dirname
     [fname_map, pre_map, ext_map, path_map] =...
-        fun_parse_files_in_path(fullfile(subject_dir, e));
+        fun_parse_files_in_path(fullfile(subject_dir, str_MD5));
+    % if it has DicomInfo.mat means it is a dir we create
     if isKey(fname_map, 'DicomInfo.mat')
-        load(fullfile(subject_dir, e, 'DicomInfo.mat'), 'DicomInfo')
+        load(fullfile(subject_dir, str_MD5, 'DicomInfo.mat'), 'DicomInfo')
         subject_name = sprintf('%s %s',...
             DicomInfo.PatientName.FamilyName,...
             DicomInfo.PatientName.GivenName);
-        set(hObject, 'String', sprintf('%s\n%s, %s',...
-            get(hObject, 'String'),...
-            subject_name, e))
+        file_mod_date = DicomInfo.FileModDate;
+        subject_id = sprintf('%s, %s', subject_name, file_mod_date);
+        set(hObject, 'String', sprintf('%s\n%s',...
+            get(hObject, 'String'), subject_id))
+        set_subjects(subject_id) = fullfile(subject_dir, str_MD5);
     end
 end
+set(hObject, 'UserData', set_subjects)
+
+
+% --- Executes on button press in pushbutton5.
+function pushbutton5_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+s = get(hObject, 'String');
+p = get(handles.figure1, 'Position');
+
+if strcmp(s, '>>')
+    set(handles.figure1, 'Position', [p(1), p(2), 940, p(4)])
+    set(hObject, 'String', '<<')
+else
+    set(handles.figure1, 'Position', [p(1), p(2), 600, p(4)])
+    set(hObject, 'String', '>>')
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function figure1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+p = get(hObject, 'Position');
+set(hObject, 'Position', [p(1), p(2), 600, p(4)])
+
+
+% --- Executes during object creation, after setting all properties.
+function axes_logo_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to axes_logo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: place code in OpeningFcn to populate axes_logo
+img = imread(fullfile('resources', 'logo.tif'));
+image(hObject, img)
+set(hObject, 'Box', 'Off')
+set(hObject, 'XTick', [])
+set(hObject, 'YTick', [])
