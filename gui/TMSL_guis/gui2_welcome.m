@@ -22,7 +22,7 @@ function varargout = gui2_welcome(varargin)
 
 % Edit the above text to modify the response to help gui2_welcome
 
-% Last Modified by GUIDE v2.5 02-Dec-2018 16:06:20
+% Last Modified by GUIDE v2.5 02-Dec-2018 21:20:55
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -95,12 +95,39 @@ str = sprintf('%s\nTR:   %d', str, di.RepetitionTime);
 set(handles.text3, 'String', str)
 
 set(hObject, 'UserData', ud)
-set(handles.pushbutton2, 'String', '开始计算')
+
+reset_analysis(handles)
+
+
+function reset_analysis(handles)
+
+set(handles.uipanel7, 'ShadowColor', [0.7, 0.7, 0.7])
+set(handles.uipanel1, 'ShadowColor', [0.7, 0.7, 0.7])
+set(handles.uipanel8, 'ShadowColor', [0.64, 0.08, 0.18])
+
+p = get(handles.figure1, 'Position');
+p(3) = 600;
+set(handles.figure1, 'Position', p)
+set(handles.pushbutton5, 'String', '>>')
+
+set(handles.pushbutton2, 'ForegroundColor', [0.64, 0.08, 0.18])
+set(handles.pushbutton2, 'String', '开 始 预 处 理')
 set(handles.pushbutton2, 'Enable', 'On')
-set(handles.checkbox1, 'Enable', 'On')
-set(handles.checkbox2, 'Enable', 'On')
-set(handles.checkbox1, 'Value', 1)
-set(handles.checkbox2, 'Value', 0)
+
+set(handles.pushbutton7, 'ForegroundColor', 'Black')
+set(handles.pushbutton7, 'String', '激 活 点 分 析')
+set(handles.pushbutton7, 'Enable', 'Off')
+set(handles.checkbox1, 'Enable', 'Off')
+
+set(handles.pushbutton8, 'ForegroundColor', 'Black')
+set(handles.pushbutton8, 'String', 'TMS 个 体 靶 点 分 析')
+set(handles.pushbutton8, 'Enable', 'Off')
+
+set(handles.uipanel9, 'Visible', 'Off')
+set(handles.uipanel10, 'Visible', 'Off')
+set(handles.text5, 'Visible', 'Off')
+
+set(handles.pushbutton5, 'Enable', 'Off')
 
 
 % --- Executes on button press in pushbutton2.
@@ -109,29 +136,16 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 ud = get(handles.pushbutton1, 'UserData');
-
-set(handles.text5, 'Visible', 'Off')
-set(handles.uibuttongroup1, 'Visible', 'Off')
-
-set(handles.pushbutton5, 'Enable', 'Off')
-set(handles.pushbutton5, 'String', '>>')
-p = get(handles.figure1, 'Position');
-set(handles.figure1, 'Position', [p(1), p(2), 600, p(4)])
-
 firstfile = fullfile(ud.pathname, ud.filenames{1});
 DicomInfo = dicominfo(firstfile);
 TR = DicomInfo.RepetitionTime / 1000;
 s = md5(firstfile);
-
 appPath = fileparts(which('TMSLocation'));
 new_pathname = fullfile(appPath, 'subjects', s);
 [a, b, c] = mkdir(new_pathname);
 save(fullfile(new_pathname, 'TR'), 'TR')
 save(fullfile(new_pathname, 'DicomInfo'), 'DicomInfo')
 save(fullfile(new_pathname, 'ud'), 'ud')
-
-set(hObject, 'Enable', 'Off')
-rawstr = get(hObject, 'String');
 
 set(hObject, 'String', '(1/7) 数 据 读 取 中 ...')
 pause(1)
@@ -153,8 +167,39 @@ set(hObject, 'String', '(5/7) 头 动 误 差 统 计 ...')
 pause(1)
 hm_max = fun_plot_artificial(appPath,...
     new_pathname, handles.axes1, handles.axes2)
+if (sum(hm_max(1:3) < 3) == 3) && (sum(hm_max(4:6) < 1) == 3)
+    set(handles.text9, 'BackgroundColor', 'g')
+    set(handles.text9, 'String', sprintf('头动小于阈值，合格'))
+else
+    set(handles.text9, 'BackgroundColor', 'r')
+    set(handles.text9, 'String', sprintf('头动大于阈值，不合格'))
+end
 
-set(hObject, 'String', '(6/7) 激 活 分 析 中 ...')
+set(hObject, 'ForegroundColor', 'black')
+set(hObject, 'String', '预 处 理 完 毕')
+set(hObject, 'Enable', 'Off')
+set(handles.uipanel8, 'ShadowColor', [0.7, 0.7, 0.7])
+
+set(handles.uipanel9, 'Visible', 'On')
+set(handles.pushbutton7, 'ForegroundColor', [0.64, 0.08, 0.18])
+set(handles.pushbutton7, 'String', '开 始 激 活 点 分 析')
+set(handles.pushbutton7, 'Enable', 'On')
+set(handles.checkbox1, 'Enable', 'On')
+set(handles.uipanel1, 'ShadowColor', [0.64, 0.08, 0.18])
+
+% --- Executes on button press in pushbutton7.
+function pushbutton7_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+ud = get(handles.pushbutton1, 'UserData');
+firstfile = fullfile(ud.pathname, ud.filenames{1});
+s = md5(firstfile);
+appPath = fileparts(which('TMSLocation'));
+new_pathname = fullfile(appPath, 'subjects', s);
+
+set(hObject, 'String', '(6/7) 激 活 点 分 析 中 ...')
 pause(1)
 fun_GLM(appPath, new_pathname, hObject)
 if get(handles.checkbox1, 'Value') == 1
@@ -168,27 +213,55 @@ else
     hh = 0;
 end
 load(fullfile(appPath, 'resources', 'cm.mat'), 'cm')
-max_p = fun_findmax_amy(appPath,...
+[max_p, max_amy_mm] = fun_findmax_amy(appPath,...
     new_pathname, gg, hh, cm, handles.axes3, handles);
-set(handles.uibuttongroup1, 'Visible', 'On')
+max_amy_mm
+set(hObject, 'UserData', max_p)
+
+set(hObject, 'ForegroundColor', 'black')
+set(hObject, 'String', '激活点分析完毕')
+set(hObject, 'Enable', 'Off')
+set(handles.checkbox1, 'Enable', 'Off')
+
+set(handles.uipanel10, 'Visible', 'On')
+set(handles.text8, 'String',...
+    sprintf('杏仁核激活点位置\n\n%dmm, %dmm, %dmm',...
+    max_amy_mm(1), max_amy_mm(2), max_amy_mm(3)))
+set(handles.pushbutton8, 'ForegroundColor', [0.64, 0.08, 0.18])
+set(handles.pushbutton8, 'String', '开始靶点分析')
+set(handles.pushbutton8, 'Enable', 'On')
+
+
+% --- Executes on button press in pushbutton8.
+function pushbutton8_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+ud = get(handles.pushbutton1, 'UserData');
+firstfile = fullfile(ud.pathname, ud.filenames{1});
+s = md5(firstfile);
+appPath = fileparts(which('TMSLocation'));
+new_pathname = fullfile(appPath, 'subjects', s);
 
 set(hObject, 'String', '(7/7) 功 能 连 接 分 析 中 ...')
 pause(1)
-max_c_mm = fun_findmax_corr(appPath, new_pathname, max_p, cm, handles)
+load(fullfile(appPath, 'resources', 'cm.mat'), 'cm')
+max_p = get(handles.pushbutton7, 'UserData');
+max_c_mm = fun_findmax_corr(appPath, new_pathname, max_p, cm, handles);
+max_c_mm
 
 set(handles.pushbutton5, 'Enable', 'On')
+set(hObject, 'ForegroundColor', 'black')
+set(hObject, 'String', 'TMS个体靶点分析完毕')
+set(hObject, 'Enable', 'Off')
 
 set(handles.text5, 'String',...
-    sprintf('TMS靶点坐标建议值\n%dmm, %dmm, %dmm',...
+    sprintf('TMS靶点坐标建议值\n\n%dmm, %dmm, %dmm',...
     max_c_mm(1), max_c_mm(2), max_c_mm(3)))
-
-set(handles.axes1, 'Visible', 'On')
-set(handles.axes2, 'Visible', 'On')
-set(handles.axes3, 'Visible', 'On')
 set(handles.text5, 'Visible', 'On')
 
-set(hObject, 'String', rawstr);
-set(hObject, 'Enable', 'On')
+set(handles.pushbutton5, 'Enable', 'On')
 
 
 % --- Executes on button press in pushbutton3.
@@ -253,84 +326,6 @@ set(get(hObject, 'Title'), 'String', '3')
 set(hObject, 'UserData', 'handles.axes3')
 
 
-% --- Executes during object creation, after setting all properties.
-function radiobutton1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to radiobutton1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-set(hObject, 'Value', 0)
-
-
-% --- Executes during object creation, after setting all properties.
-function radiobutton2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to radiobutton2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-% --- Executes during object creation, after setting all properties.
-set(hObject, 'Value', 0)
-
-
-function radiobutton3_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to radiobutton3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-set(hObject, 'Value', 1)
-
-
-% --- Executes on button press in radiobutton1.
-function radiobutton1_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobutton1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of radiobutton1
-if get(hObject, 'Value')
-    this = handles.axes1;
-    a = get(handles.uipanel1, 'UserData');
-    a = eval(a);
-    p = get(a, 'Position');
-    set(a, 'Position', get(this, 'Position'))
-    set(this, 'Position', p);
-    set(handles.uipanel1, 'UserData', 'handles.axes1')
-end
-
-
-% --- Executes on button press in radiobutton2.
-function radiobutton2_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobutton2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of radiobutton2
-if get(hObject, 'Value')
-    this = handles.axes2;
-    a = get(handles.uipanel1, 'UserData');
-    a = eval(a);
-    p = get(a, 'Position');
-    set(a, 'Position', get(this, 'Position'))
-    set(this, 'Position', p);
-    set(handles.uipanel1, 'UserData', 'handles.axes2')
-end
-
-
-% --- Executes on button press in radiobutton3.
-function radiobutton3_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobutton3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of radiobutton3
-if get(hObject, 'Value')
-    this = handles.axes3;
-    a = get(handles.uipanel1, 'UserData');
-    a = eval(a);
-    p = get(a, 'Position');
-    set(a, 'Position', get(this, 'Position'))
-    set(this, 'Position', p);
-    set(handles.uipanel1, 'UserData', 'handles.axes3')
-end
-
-
 % --- Executes on button press in checkbox1.
 function checkbox1_Callback(hObject, eventdata, handles)
 % hObject    handle to checkbox1 (see GCBO)
@@ -360,19 +355,12 @@ function popupmenu1_Callback(hObject, eventdata, handles)
 contents = cellstr(get(hObject,'String'));
 str = contents{get(hObject,'Value')};
 
-set(handles.text3, 'String', '--')
-set(handles.pushbutton2, 'String', '开始计算')
+reset_analysis(handles)
+
+set(handles.uipanel8, 'ShadowColor', [0.7, 0.7, 0.7])
+set(handles.uipanel7, 'ShadowColor', [0.64, 0.08, 0.18])
 set(handles.pushbutton2, 'Enable', 'Off')
-set(handles.checkbox1, 'Enable', 'Off')
-set(handles.checkbox2, 'Enable', 'Off')
-
-set(handles.text5, 'Visible', 'Off')
-set(handles.uibuttongroup1, 'Visible', 'Off')
-
-set(handles.pushbutton5, 'Enable', 'Off')
-set(handles.pushbutton5, 'String', '>>')
-p = get(handles.figure1, 'Position');
-set(handles.figure1, 'Position', [p(1), p(2), 600, p(4)])
+set(handles.text3, 'String', '--')
 
 if strcmp(str, '--')
     return
@@ -384,6 +372,11 @@ load(fullfile(dir_subject, 'ud'), 'ud')
 
 firstfile = fullfile(ud.pathname, ud.filenames{1});
 
+if ~exist(firstfile, 'file')
+    warndlg(sprintf('%s目录异常，请重新载入数据', ud.pathname))
+    return
+end
+
 di = dicominfo(firstfile);
 str = sprintf('Name: %s  %s',...
     di.PatientName.FamilyName, di.PatientName.GivenName);
@@ -394,12 +387,8 @@ str = sprintf('%s\nTR:   %d', str, di.RepetitionTime);
 set(handles.text3, 'String', str)
 
 set(handles.pushbutton1, 'UserData', ud)
-set(handles.pushbutton2, 'String', '开始计算')
-set(handles.pushbutton2, 'Enable', 'On')
-set(handles.checkbox1, 'Enable', 'On')
-set(handles.checkbox2, 'Enable', 'On')
-set(handles.checkbox1, 'Value', 1)
-set(handles.checkbox2, 'Value', 0)
+
+reset_analysis(handles)
 
 
 % --- Executes during object creation, after setting all properties.
@@ -463,9 +452,9 @@ function figure1_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-
 p = get(hObject, 'Position');
-set(hObject, 'Position', [p(1), p(2), 600, p(4)])
+p(3) = 600;
+set(hObject, 'Position', p)
 
 
 % --- Executes during object creation, after setting all properties.
@@ -481,3 +470,20 @@ image(hObject, img)
 set(hObject, 'Box', 'Off')
 set(hObject, 'XTick', [])
 set(hObject, 'YTick', [])
+
+
+% --- Executes on button press in togglebutton2.
+function togglebutton2_Callback(hObject, eventdata, handles)
+% hObject    handle to togglebutton2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of togglebutton2
+k = get(hObject, 'Value');
+if k == 0
+    set(handles.pushbutton1, 'Enable', 'Off')
+    set(handles.popupmenu1, 'Enable', 'On')
+else
+    set(handles.pushbutton1, 'Enable', 'On')
+    set(handles.popupmenu1, 'Enable', 'Off')
+end

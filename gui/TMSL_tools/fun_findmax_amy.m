@@ -1,4 +1,4 @@
-function max_p = fun_findmax_amy(appPath, pathname, gg, hh, cm, axe, handles)
+function [max_p, max_mm] = fun_findmax_amy(appPath, pathname, gg, hh, cm, axe_activity, handles)
 
 %% get all voxels in ROI as mm
 amyfile = fullfile(appPath, 'resources', 'ROIs', 'amy.nii');
@@ -60,7 +60,7 @@ for j = 1 : len
 end
 dd = spm_read_vols(fvols);
 ts = squeeze(dd(max_p(1), max_p(2), max_p(3), :));
-set(gcf, 'CurrentAxes', axe)
+set(gcf, 'CurrentAxes', axe_activity)
 len = size(ts, 1);
 x = 1:len;
 plot(ts, 'linewidth', 2)
@@ -77,7 +77,7 @@ end
 
 %% plot 3D volume
 hold on
-plot(x, ts, 'linewidth', 2);
+plot(x, ts, 'linewidth', 2, 'color', 'b');
 hold off
 set(gca, 'YLim', yl)
 set(gca, 'YTick', [])
@@ -94,7 +94,7 @@ dummy.fig = handles.figure1;
 dummy.axe1 = handles.axes_1;
 dummy.axe2 = handles.axes_2;
 dummy.axe3 = handles.axes_3;
-dummy.axe4 = handles.axes_4;
+dummy.axe4 = []; % handles.axes_4;
 
 fig = fun_plot_3D4D(TMP_fname, dd, d_spmT, v_spmT, max_mm, cond, cm, [], dummy);
 % set(fig, 'NumberTitle', 'Off', 'Name', '杏仁核中的最强激活位置')

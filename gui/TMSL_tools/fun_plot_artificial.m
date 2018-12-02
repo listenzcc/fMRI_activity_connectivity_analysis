@@ -23,7 +23,7 @@ end
 hold on
 as = plot(x, hm(:, 1:3), 'linewidth', 2);
 hold off
-legend(as, {'x-方向运动', 'y-方向运动', 'z-方向运动'})
+legend(as, {'x-', 'y-', 'z-'})
 set(gca, 'XTick' ,[])
 set(gca, 'XLim', [1, len])
 set(gca, 'YLim', yl/3)
@@ -41,7 +41,7 @@ end
 hold on
 as = plot(x, hm(:, 4:6), 'linewidth', 2);
 hold off
-legend(as, {'点头角度', '歪头角度', '摇头角度'})
+legend(as, {'点头', '歪头', '摇头'})
 set(gca, 'XTick' ,[])
 set(gca, 'XLim', [1, len])
 set(gca, 'YLim', yl/3)
