@@ -1,4 +1,4 @@
-function fun_GLM(pathname, hObject)
+function fun_GLM(appPath, pathname, hObject)
 [fname_map, pre_map, ext_map, path_map] = fun_parse_files_in_path(pathname);
 if isKey(path_map, sprintf('_____GLM_1'))
     return
@@ -18,8 +18,8 @@ for gg = [0, 1]
         load(fullfile(funpath, 'fun_filenames.mat'), 'fun_filenames')
         d = dir(fullfile(funpath, 'rp_*.txt'));
         hmtxt = fullfile(funpath, d(1).name);
-        load(fullfile('resources', 'b_GLM.mat'), 'matlabbatch')
-        load(fullfile('resources', 'b_cond.mat'), 'cond')
+        load(fullfile(appPath, 'resources', 'b_GLM.mat'), 'matlabbatch')
+        load(fullfile(appPath, 'resources', 'b_cond.mat'), 'cond')
         matlabbatch{1}.spm.stats.fmri_spec.dir = {outdir};
         if gg == 1
             matlabbatch{1}.spm.stats.fmri_spec.global = 'Scaling'; % global

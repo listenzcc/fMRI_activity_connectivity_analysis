@@ -1,4 +1,4 @@
-function fun_preprocess_2(pathname, hObject)
+function fun_preprocess_2(appPath, pathname, hObject)
 [fname_map, pre_map, ext_map, path_map] = fun_parse_files_in_path(pathname);
 for j = 2 : 4
     if isKey(path_map, sprintf('_____preprocessed_%d', j))
@@ -7,7 +7,7 @@ for j = 2 : 4
 end
 
 workpath = fullfile(pathname, '_____preprocessed_1');
-load(fullfile('resources', 'b_realign.mat'), 'matlabbatch')
+load(fullfile(appPath, 'resources', 'b_realign.mat'), 'matlabbatch')
 
 load(fullfile(workpath, 'fun_filenames.mat'), 'fun_filenames')
 

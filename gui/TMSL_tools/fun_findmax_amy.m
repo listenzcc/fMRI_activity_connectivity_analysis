@@ -1,7 +1,7 @@
-function max_p = fun_findmax_amy(pathname, gg, hh, cm, axe, handles)
+function max_p = fun_findmax_amy(appPath, pathname, gg, hh, cm, axe, handles)
 
 %% get all voxels in ROI as mm
-amyfile = fullfile('resources', 'ROIs', 'amy.nii');
+amyfile = fullfile(appPath, 'resources', 'ROIs', 'amy.nii');
 set_mm = fun_get_mmgrid_ROI(amyfile);
 
 %% find all voxels in ROI as p
@@ -67,7 +67,7 @@ plot(ts, 'linewidth', 2)
 yl = get(gca, 'YLim');
 plot(x*0, 'color', 'w');
 load(fullfile(pathname, 'TR.mat'), 'TR')
-load(fullfile('resources', 'b_cond.mat'), 'cond')
+load(fullfile(appPath, 'resources', 'b_cond.mat'), 'cond')
 n = length(cond.onset);
 for j = 1 : n
     rectangle('Position',...
@@ -86,7 +86,7 @@ set(gca, 'XLim', [1, len])
 set(gca, 'Box', 'Off')
 title('杏仁核区域脑活动曲线')
 
-TMP_fname = fullfile(pwd, 'resources', 'canonical', 'avg152T1.nii');
+TMP_fname = fullfile(appPath, 'resources', 'canonical', 'avg152T1.nii');
 cond.TR = TR;
 
 dummy = struct;
@@ -97,7 +97,7 @@ dummy.axe3 = handles.axes_3;
 dummy.axe4 = handles.axes_4;
 
 fig = fun_plot_3D4D(TMP_fname, dd, d_spmT, v_spmT, max_mm, cond, cm, [], dummy);
-set(fig, 'NumberTitle', 'Off', 'Name', '杏仁核中的最强激活位置')
+% set(fig, 'NumberTitle', 'Off', 'Name', '杏仁核中的最强激活位置')
 
 end
 

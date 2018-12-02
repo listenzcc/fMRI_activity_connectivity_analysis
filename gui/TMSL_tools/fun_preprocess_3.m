@@ -1,4 +1,4 @@
-function fun_preprocess_3(pathname, hObject)
+function fun_preprocess_3(appPath, pathname, hObject)
 [fname_map, pre_map, ext_map, path_map] = fun_parse_files_in_path(pathname);
 for j = 3 : 4
     if isKey(path_map, sprintf('_____preprocessed_%d', j))
@@ -7,10 +7,10 @@ for j = 3 : 4
 end
 
 workpath = fullfile(pathname, '_____preprocessed_2');
-load(fullfile('resources', 'b_normalise.mat'), 'matlabbatch')
+load(fullfile(appPath, 'resources', 'b_normalise.mat'), 'matlabbatch')
 
 matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.tpm =...
-    {fullfile('resources', 'b_TPM.nii')};
+    {fullfile(appPath, 'resources', 'b_TPM.nii')};
 
 meanfile = dir(fullfile(workpath, 'mean*.nii'));
 vol = [fullfile(workpath, meanfile.name), ',1'];

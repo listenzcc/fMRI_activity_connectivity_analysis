@@ -5,6 +5,12 @@ function fun_draw_TMP(mm, img_TMP, mat_TMP, img_4D, mat_4D,...
 p_TMP = floor(fun_mm2position(mm, mat_TMP));
 p_4D = floor(fun_mm2position(mm, mat_4D));
 
+sz = size(img_TMP);
+ms = max(size(img_TMP));
+img_TMP_e = zeros(ms, ms, ms) + img_TMP(1, 1, 1);
+img_TMP_e(1:sz(1), 1:sz(2), 1:sz(3)) = img_TMP;
+img_TMP = img_TMP_e;
+
 % 冠状位
 ud = struct;
 set(fig, 'CurrentAxes', axe1)
@@ -64,6 +70,9 @@ set(gca, 'UserData', ud)
 
 % 时间序列
 ud = struct;
+if isempty(axe4)
+    return
+end
 set(fig, 'CurrentAxes', axe4)
 
 plot(squeeze(img_4D(p_4D(1), p_4D(2), p_4D(3), :)), 'color', 'white')

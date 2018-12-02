@@ -1,4 +1,4 @@
-function fun_preprocess_4(pathname, hObject)
+function fun_preprocess_4(appPath, pathname, hObject)
 [fname_map, pre_map, ext_map, path_map] = fun_parse_files_in_path(pathname);
 for j = 4
     if isKey(path_map, sprintf('_____preprocessed_%d', j))
@@ -7,7 +7,7 @@ for j = 4
 end
 
 workpath = fullfile(pathname, '_____preprocessed_3');
-load(fullfile('resources', 'b_smooth.mat'), 'matlabbatch')
+load(fullfile(appPath, 'resources', 'b_smooth.mat'), 'matlabbatch')
 
 load(fullfile(workpath, 'fun_filenames.mat'), 'fun_filenames')
 len = length(fun_filenames);

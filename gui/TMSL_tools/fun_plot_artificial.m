@@ -1,4 +1,4 @@
-function hm_max = fun_plot_artificial(pathname, axe1, axe2)
+function hm_max = fun_plot_artificial(appPath, pathname, axe1, axe2)
 
 funpath = fullfile(pathname, '_____preprocessed_4');
 d = dir(fullfile(funpath, 'rp_*.txt'));
@@ -9,7 +9,7 @@ x = 1:len;
 
 load(fullfile(pathname, 'TR.mat'), 'TR')
 
-load(fullfile('resources', 'b_cond.mat'), 'cond')
+load(fullfile(appPath, 'resources', 'b_cond.mat'), 'cond')
 n = length(cond.onset);
 
 set(gcf, 'CurrentAxes', axe1)

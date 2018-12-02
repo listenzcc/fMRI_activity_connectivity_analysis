@@ -22,7 +22,7 @@ function varargout = gui2_welcome(varargin)
 
 % Edit the above text to modify the response to help gui2_welcome
 
-% Last Modified by GUIDE v2.5 02-Dec-2018 14:46:18
+% Last Modified by GUIDE v2.5 02-Dec-2018 16:06:20
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -110,12 +110,21 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 ud = get(handles.pushbutton1, 'UserData');
 
+set(handles.text5, 'Visible', 'Off')
+set(handles.uibuttongroup1, 'Visible', 'Off')
+
+set(handles.pushbutton5, 'Enable', 'Off')
+set(handles.pushbutton5, 'String', '>>')
+p = get(handles.figure1, 'Position');
+set(handles.figure1, 'Position', [p(1), p(2), 600, p(4)])
+
 firstfile = fullfile(ud.pathname, ud.filenames{1});
 DicomInfo = dicominfo(firstfile);
 TR = DicomInfo.RepetitionTime / 1000;
 s = md5(firstfile);
 
-new_pathname = fullfile(pwd, 'subjects', s);
+appPath = fileparts(which('TMSLocation'));
+new_pathname = fullfile(appPath, 'subjects', s);
 [a, b, c] = mkdir(new_pathname);
 save(fullfile(new_pathname, 'TR'), 'TR')
 save(fullfile(new_pathname, 'DicomInfo'), 'DicomInfo')
@@ -126,27 +135,28 @@ rawstr = get(hObject, 'String');
 
 set(hObject, 'String', '(1/7) 数 据 读 取 中 ...')
 pause(1)
-fun_preprocess_1(new_pathname, ud.pathname, ud.filenames, hObject)
+fun_preprocess_1(appPath, new_pathname, ud.pathname, ud.filenames, hObject)
 
 set(hObject, 'String', '(2/7) 功 能 像 对 齐 中 ...')
 pause(1)
-fun_preprocess_2(new_pathname, hObject)
+fun_preprocess_2(appPath, new_pathname, hObject)
 
 set(hObject, 'String', '(3/7) 功 能 结 构 配 准 中 ...')
 pause(1)
-fun_preprocess_3(new_pathname, hObject)
+fun_preprocess_3(appPath, new_pathname, hObject)
 
 set(hObject, 'String', '(4/7) 功 能 像 平 滑 中 ...')
 pause(1)
-fun_preprocess_4(new_pathname, hObject)
+fun_preprocess_4(appPath, new_pathname, hObject)
 
 set(hObject, 'String', '(5/7) 头 动 误 差 统 计 ...')
 pause(1)
-hm_max = fun_plot_artificial(new_pathname, handles.axes1, handles.axes2)
+hm_max = fun_plot_artificial(appPath,...
+    new_pathname, handles.axes1, handles.axes2)
 
 set(hObject, 'String', '(6/7) 激 活 分 析 中 ...')
 pause(1)
-fun_GLM(new_pathname, hObject)
+fun_GLM(appPath, new_pathname, hObject)
 if get(handles.checkbox1, 'Value') == 1
     gg = 1;
 else
@@ -157,13 +167,14 @@ if get(handles.checkbox2, 'Value') == 1
 else
     hh = 0;
 end
-load(fullfile(pwd, 'resources', 'cm.mat'), 'cm')
-max_p = fun_findmax_amy(new_pathname, gg, hh, cm, handles.axes3, handles);
+load(fullfile(appPath, 'resources', 'cm.mat'), 'cm')
+max_p = fun_findmax_amy(appPath,...
+    new_pathname, gg, hh, cm, handles.axes3, handles);
 set(handles.uibuttongroup1, 'Visible', 'On')
 
 set(hObject, 'String', '(7/7) 功 能 连 接 分 析 中 ...')
 pause(1)
-max_c_mm = fun_findmax_corr(new_pathname, max_p, cm, handles)
+max_c_mm = fun_findmax_corr(appPath, new_pathname, max_p, cm, handles)
 
 set(handles.pushbutton5, 'Enable', 'On')
 
@@ -405,7 +416,8 @@ end
 
 set(hObject, 'String', '--')
 
-subject_dir = fullfile(pwd, 'subjects');
+appPath = fileparts(which('TMSLocation'));
+subject_dir = fullfile(appPath, 'subjects');
 [fname_map, pre_map, ext_map, path_map] = fun_parse_files_in_path(subject_dir);
 
 set_subjects = containers.Map;
@@ -463,7 +475,8 @@ function axes_logo_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: place code in OpeningFcn to populate axes_logo
-img = imread(fullfile('resources', 'logo.tif'));
+appPath = fileparts(which('TMSLocation'));
+img = imread(fullfile(appPath, 'resources', 'logo.tif'));
 image(hObject, img)
 set(hObject, 'Box', 'Off')
 set(hObject, 'XTick', [])
