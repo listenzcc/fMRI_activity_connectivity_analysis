@@ -144,6 +144,20 @@ save(fullfile(new_pathname, 'TR'), 'TR')
 save(fullfile(new_pathname, 'DicomInfo'), 'DicomInfo')
 save(fullfile(new_pathname, 'ud'), 'ud')
 
+set_subjects = get(handles.popupmenu1, 'UserData');
+if isempty(set_subjects)
+    set_subjects = containers.Map;
+end
+subject_name = sprintf('%s %s',...
+    DicomInfo.PatientName.FamilyName,...
+    DicomInfo.PatientName.GivenName);
+file_mod_date = DicomInfo.FileModDate;
+subject_id = sprintf('%s, %s', subject_name, file_mod_date);
+set(handles.popupmenu1, 'String', sprintf('%s\n%s',...
+    get(handles.popupmenu1, 'String'), subject_id))
+set_subjects(subject_id) = new_pathname;
+set(handles.popupmenu1, 'UserData', set_subjects);
+
 set(hObject, 'String', '(1/7) 数 据 读 取 中 ...')
 pause(1)
 fun_preprocess_1(appPath, new_pathname, ud.pathname, ud.filenames, hObject)
@@ -174,20 +188,6 @@ set(hObject, 'ForegroundColor', 'black')
 set(hObject, 'String', '预 处 理 完 毕')
 set(hObject, 'Enable', 'Off')
 set(handles.uipanel8, 'ShadowColor', [0.7, 0.7, 0.7])
-
-set_subjects = get(handles.popupmenu1, 'UserData');
-if isempty(set_subjects)
-    set_subjects = containers.Map;
-end
-subject_name = sprintf('%s %s',...
-    DicomInfo.PatientName.FamilyName,...
-    DicomInfo.PatientName.GivenName);
-file_mod_date = DicomInfo.FileModDate;
-subject_id = sprintf('%s, %s', subject_name, file_mod_date);
-set(handles.popupmenu1, 'String', sprintf('%s\n%s',...
-    get(handles.popupmenu1, 'String'), subject_id))
-set_subjects(subject_id) = new_pathname;
-set(handles.popupmenu1, 'UserData', set_subjects);
 
 set(hObject, 'UserData', set_subjects)
 
@@ -238,10 +238,10 @@ set(handles.checkbox1, 'Enable', 'Off')
 set(handles.uipanel5, 'Visible', 'On')
 
 set(handles.text8, 'String',...
-    sprintf('杏仁核激活点位置\n\n%dmm, %dmm, %dmm',...
+    sprintf('TMS效应点位置\n\n%dmm, %dmm, %dmm',...
     max_amy_mm(1), max_amy_mm(2), max_amy_mm(3)))
 set(handles.pushbutton8, 'ForegroundColor', [0.64, 0.08, 0.18])
-set(handles.pushbutton8, 'String', '开始TMS个体靶点分析')
+set(handles.pushbutton8, 'String', '开始个体TMS靶点分析')
 set(handles.pushbutton8, 'Enable', 'On')
 set(handles.checkbox3, 'Enable', 'On')
 
@@ -266,12 +266,12 @@ max_c_mm = fun_findmax_corr(appPath, new_pathname, max_p, cm, handles);
 max_c_mm
 
 set(handles.pushbutton8, 'ForegroundColor', [0.64, 0.08, 0.18])
-set(hObject, 'String', '开始TMS个体靶点分析')
+set(hObject, 'String', '开始个体TMS靶点分析')
 
 set(handles.uipanel6, 'Visible', 'On')
 
 set(handles.text5, 'String',...
-    sprintf('TMS靶点坐标建议值\n\n%dmm, %dmm, %dmm',...
+    sprintf('TMS靶点建议位置\n\n%dmm, %dmm, %dmm',...
     max_c_mm(1), max_c_mm(2), max_c_mm(3)))
 set(handles.text5, 'Visible', 'On')
 
