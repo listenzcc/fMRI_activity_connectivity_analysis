@@ -22,7 +22,7 @@ function varargout = gui2_welcome(varargin)
 
 % Edit the above text to modify the response to help gui2_welcome
 
-% Last Modified by GUIDE v2.5 02-Dec-2018 21:20:55
+% Last Modified by GUIDE v2.5 03-Dec-2018 10:36:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -91,7 +91,6 @@ str = sprintf('Name: %s  %s',...
 str = sprintf('%s\nSex:  %s', str, di.PatientSex);
 str = sprintf('%s\nAge:  %s', str, di.PatientAge);
 str = sprintf('%s\nScan: %s', str, di.FileModDate);
-str = sprintf('%s\nTR:   %d', str, di.RepetitionTime);
 set(handles.text3, 'String', str)
 
 set(hObject, 'UserData', ud)
@@ -105,10 +104,9 @@ set(handles.uipanel7, 'ShadowColor', [0.7, 0.7, 0.7])
 set(handles.uipanel1, 'ShadowColor', [0.7, 0.7, 0.7])
 set(handles.uipanel8, 'ShadowColor', [0.64, 0.08, 0.18])
 
-p = get(handles.figure1, 'Position');
-p(3) = 600;
-set(handles.figure1, 'Position', p)
-set(handles.pushbutton5, 'String', '>>')
+% p = get(handles.figure1, 'Position');
+% p(3) = 600;
+% set(handles.figure1, 'Position', p)
 
 set(handles.pushbutton2, 'ForegroundColor', [0.64, 0.08, 0.18])
 set(handles.pushbutton2, 'String', '开 始 预 处 理')
@@ -122,12 +120,11 @@ set(handles.checkbox1, 'Enable', 'Off')
 set(handles.pushbutton8, 'ForegroundColor', 'Black')
 set(handles.pushbutton8, 'String', 'TMS 个 体 靶 点 分 析')
 set(handles.pushbutton8, 'Enable', 'Off')
+set(handles.checkbox3, 'Enable', 'Off')
 
 set(handles.uipanel9, 'Visible', 'Off')
-set(handles.uipanel10, 'Visible', 'Off')
-set(handles.text5, 'Visible', 'Off')
-
-set(handles.pushbutton5, 'Enable', 'Off')
+set(handles.uipanel5, 'Visible', 'Off')
+set(handles.uipanel6, 'Visible', 'Off')
 
 
 % --- Executes on button press in pushbutton2.
@@ -168,11 +165,9 @@ pause(1)
 hm_max = fun_plot_artificial(appPath,...
     new_pathname, handles.axes1, handles.axes2)
 if (sum(hm_max(1:3) < 3) == 3) && (sum(hm_max(4:6) < 1) == 3)
-    set(handles.text9, 'BackgroundColor', 'g')
-    set(handles.text9, 'String', sprintf('头动小于阈值，合格'))
+    set(handles.text10, 'String', sprintf('头动小于阈值\n\n合格'))
 else
-    set(handles.text9, 'BackgroundColor', 'r')
-    set(handles.text9, 'String', sprintf('头动大于阈值，不合格'))
+    set(handles.text10, 'String', sprintf('头动大于阈值\n\n不合格'))
 end
 
 set(hObject, 'ForegroundColor', 'black')
@@ -180,12 +175,29 @@ set(hObject, 'String', '预 处 理 完 毕')
 set(hObject, 'Enable', 'Off')
 set(handles.uipanel8, 'ShadowColor', [0.7, 0.7, 0.7])
 
+set_subjects = get(handles.popupmenu1, 'UserData');
+if isempty(set_subjects)
+    set_subjects = containers.Map;
+end
+subject_name = sprintf('%s %s',...
+    DicomInfo.PatientName.FamilyName,...
+    DicomInfo.PatientName.GivenName);
+file_mod_date = DicomInfo.FileModDate;
+subject_id = sprintf('%s, %s', subject_name, file_mod_date);
+set(handles.popupmenu1, 'String', sprintf('%s\n%s',...
+    get(handles.popupmenu1, 'String'), subject_id))
+set_subjects(subject_id) = new_pathname;
+set(handles.popupmenu1, 'UserData', set_subjects);
+
+set(hObject, 'UserData', set_subjects)
+
 set(handles.uipanel9, 'Visible', 'On')
 set(handles.pushbutton7, 'ForegroundColor', [0.64, 0.08, 0.18])
 set(handles.pushbutton7, 'String', '开 始 激 活 点 分 析')
 set(handles.pushbutton7, 'Enable', 'On')
 set(handles.checkbox1, 'Enable', 'On')
 set(handles.uipanel1, 'ShadowColor', [0.64, 0.08, 0.18])
+
 
 % --- Executes on button press in pushbutton7.
 function pushbutton7_Callback(hObject, eventdata, handles)
@@ -223,13 +235,15 @@ set(hObject, 'String', '激活点分析完毕')
 set(hObject, 'Enable', 'Off')
 set(handles.checkbox1, 'Enable', 'Off')
 
-set(handles.uipanel10, 'Visible', 'On')
+set(handles.uipanel5, 'Visible', 'On')
+
 set(handles.text8, 'String',...
     sprintf('杏仁核激活点位置\n\n%dmm, %dmm, %dmm',...
     max_amy_mm(1), max_amy_mm(2), max_amy_mm(3)))
 set(handles.pushbutton8, 'ForegroundColor', [0.64, 0.08, 0.18])
-set(handles.pushbutton8, 'String', '开始靶点分析')
+set(handles.pushbutton8, 'String', '开始TMS个体靶点分析')
 set(handles.pushbutton8, 'Enable', 'On')
+set(handles.checkbox3, 'Enable', 'On')
 
 
 % --- Executes on button press in pushbutton8.
@@ -244,24 +258,22 @@ s = md5(firstfile);
 appPath = fileparts(which('TMSLocation'));
 new_pathname = fullfile(appPath, 'subjects', s);
 
-set(hObject, 'String', '(7/7) 功 能 连 接 分 析 中 ...')
+set(hObject, 'String', '(7/7) TMS 靶 点 分 析 中 ...')
 pause(1)
 load(fullfile(appPath, 'resources', 'cm.mat'), 'cm')
 max_p = get(handles.pushbutton7, 'UserData');
 max_c_mm = fun_findmax_corr(appPath, new_pathname, max_p, cm, handles);
 max_c_mm
 
-set(handles.pushbutton5, 'Enable', 'On')
-set(hObject, 'ForegroundColor', 'black')
-set(hObject, 'String', 'TMS个体靶点分析完毕')
-set(hObject, 'Enable', 'Off')
+set(handles.pushbutton8, 'ForegroundColor', [0.64, 0.08, 0.18])
+set(hObject, 'String', '开始TMS个体靶点分析')
+
+set(handles.uipanel6, 'Visible', 'On')
 
 set(handles.text5, 'String',...
     sprintf('TMS靶点坐标建议值\n\n%dmm, %dmm, %dmm',...
     max_c_mm(1), max_c_mm(2), max_c_mm(3)))
 set(handles.text5, 'Visible', 'On')
-
-set(handles.pushbutton5, 'Enable', 'On')
 
 
 % --- Executes on button press in pushbutton3.
@@ -383,7 +395,6 @@ str = sprintf('Name: %s  %s',...
 str = sprintf('%s\nSex:  %s', str, di.PatientSex);
 str = sprintf('%s\nAge:  %s', str, di.PatientAge);
 str = sprintf('%s\nScan: %s', str, di.FileModDate);
-str = sprintf('%s\nTR:   %d', str, di.RepetitionTime);
 set(handles.text3, 'String', str)
 
 set(handles.pushbutton1, 'UserData', ud)
@@ -452,9 +463,9 @@ function figure1_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-p = get(hObject, 'Position');
-p(3) = 600;
-set(hObject, 'Position', p)
+% p = get(hObject, 'Position');
+% p(3) = 600;
+% set(hObject, 'Position', p)
 
 
 % --- Executes during object creation, after setting all properties.
@@ -479,11 +490,20 @@ function togglebutton2_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of togglebutton2
-k = get(hObject, 'Value');
-if k == 0
-    set(handles.pushbutton1, 'Enable', 'Off')
-    set(handles.popupmenu1, 'Enable', 'On')
-else
-    set(handles.pushbutton1, 'Enable', 'On')
-    set(handles.popupmenu1, 'Enable', 'Off')
-end
+% k = get(hObject, 'Value');
+% if k == 0
+%     set(handles.pushbutton1, 'Enable', 'Off')
+%     set(handles.popupmenu1, 'Enable', 'On')
+% else
+%     set(handles.pushbutton1, 'Enable', 'On')
+%     set(handles.popupmenu1, 'Enable', 'Off')
+% end
+
+
+% --- Executes on button press in checkbox3.
+function checkbox3_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox3

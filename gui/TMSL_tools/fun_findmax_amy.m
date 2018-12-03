@@ -84,7 +84,7 @@ set(gca, 'YTick', [])
 set(gca, 'XTick' ,[])
 set(gca, 'XLim', [1, len])
 set(gca, 'Box', 'Off')
-title('杏仁核区域脑活动曲线')
+title('效用点活动曲线')
 
 TMP_fname = fullfile(appPath, 'resources', 'canonical', 'avg152T1.nii');
 cond.TR = TR;

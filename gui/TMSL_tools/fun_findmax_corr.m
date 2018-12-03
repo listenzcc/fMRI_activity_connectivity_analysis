@@ -40,7 +40,14 @@ for pp = keys(set_p)
     ROI_ts = [ROI_ts, ts];
     ROI_p = [ROI_p, p'];
 end
-c = fun_corr(ts, ROI_ts);
+
+if get(handles.checkbox3, 'Value')
+    global_ts = get_global(img_4D);
+    max_ts = fun_regout(max_ts, global_ts);
+    ROI_ts = fun_regout(ROI_ts, global_ts);
+end
+
+c = fun_corr(max_ts, ROI_ts);
 [a, b] = max(c);
 max_c_p = ROI_p(:, b);
 
@@ -72,6 +79,13 @@ end
 
 function c = get_ts(a, b)
 c = squeeze(a(b(1), b(2), b(3), :));
+end
+
+function c = get_global(a)
+for j = 1 : 3
+    a = squeeze(mean(a, 1));
+end
+c = a';
 end
 
 function isgood = check(p, sz)

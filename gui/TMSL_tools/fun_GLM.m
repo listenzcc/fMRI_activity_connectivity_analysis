@@ -9,7 +9,7 @@ outdir_GLM = fullfile(pathname, '_____GLM_');
 
 %% global, headmotion
 for gg = [0, 1]
-    for hh = [0, 1]
+    for hh = [0]
         outdir = fullfile(outdir_GLM, sprintf('g%dh%d', gg, hh));
         [a, b, c] = mkdir(outdir);
         
