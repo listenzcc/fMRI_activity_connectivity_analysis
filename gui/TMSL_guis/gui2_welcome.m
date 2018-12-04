@@ -275,6 +275,9 @@ set(handles.text5, 'String',...
     max_c_mm(1), max_c_mm(2), max_c_mm(3)))
 set(handles.text5, 'Visible', 'On')
 
+pic_path = fullfile(new_pathname, 'pic_report.png');
+print(handles.figure1, '-dpng', '-r600', pic_path)
+
 
 % --- Executes on button press in pushbutton3.
 function pushbutton3_Callback(hObject, eventdata, handles)
