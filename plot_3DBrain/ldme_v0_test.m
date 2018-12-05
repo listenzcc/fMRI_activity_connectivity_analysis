@@ -82,16 +82,35 @@ set(roi_tms, 'FaceAlpha', 1);
 axis tight;
 axis vis3d off;
 
-rot = [0.3, 0.2];
-while true
-    [az, el] = view;
-    az = az + rot(1);
-    az = mod(az, 360);
-    el = el + rot(2);
-    if el > 90 || el < -19
-        rot(2) = - rot(2);
-    end
-    set(gca, 'View', [az, el])
-    drawnow
+set(gca, 'View', [0, 90])
+
+set(gcf, 'WindowButtonMotionFcn', @ButttonMotionFcn)
+
+% rot = [0.3, 0.2];
+% while true
+%     [az, el] = view;
+%     az = az + rot(1);
+%     az = mod(az, 360);
+%     el = el + rot(2);
+%     if el > 90 || el < -90
+%         rot(2) = - rot(2);
+%     end
+%     set(gca, 'View', [az, el])
+%     drawnow
+% end
+
+function ButttonMotionFcn(src, event)
+cp = get_cp(gcf);
+disp(cp)
+az = mod(720*cp(1), 360);
+el = 180*(cp(2)-0.5);
+disp([az, el])
+set(gca, 'View', [az, el])
 end
 
+function cp = get_cp(fig)
+unit_axe = get(fig, 'Units');
+set(fig, 'Units', 'normalized')
+cp = get(fig, 'CurrentPoint');
+set(fig, 'Units', unit_axe)
+end

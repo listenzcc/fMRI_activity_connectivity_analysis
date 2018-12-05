@@ -1,9 +1,114 @@
 
-<h1>Title</h1>
-<hr>
-<h2>Subject Name</h2>
-<h3>Age</h3>
-<h3>Sex</h3>
-<h3>Scan Date</h3>
-id:fkoaheiugbnwieuehfiwea
-<hr>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Reports</title>
+  </head>
+  
+  <style>
+
+    .mytable
+    {
+        width: 600px;
+        height: auto;
+        margin: 0 auto;
+	margin-left: 0px;
+
+    }
+    .mytable table
+    {
+        width: 100%;
+        border: 1px solid #999;
+        padding: 0;
+        margin: 0;
+        border-collapse: collapse;
+    }
+
+    .mytable th
+    {
+        height: 45px;
+        line-height: 45px;
+        text-align: center;
+        border-bottom: 1px solid #999;
+        padding: 0;
+        margin: 0;
+
+    }
+    .mytable td
+    {
+        height: 45px;
+        line-height: 45px;
+        text-align: center;
+        border-bottom: 1px solid #999;
+        padding: 0;
+        margin: 0;
+    }
+
+    .mytable tr:hover
+    {
+        background-color: #f8f8f8;
+    }
+
+    .mytable tr:nth-child(2n)
+    {
+        background-color: #f8f8f8;
+    }
+
+    .mytable tfoot
+    {
+        width: 100%;
+    }
+
+    .mytable  tfoot a{
+        text-decoration: none;
+        color: #999;
+    }
+  </style>
+  
+  <body>
+
+    <div style="width: 810px">
+      <h1>Title</h1>
+      <hr>
+
+      <div class="mytable">
+	<table>
+	  <caption>
+	    <h2 style="float: left">Subject Information</h2>
+	  </caption>
+	  <thead>
+	    <tr> <!----row-->
+	      <th>Name</th>
+	      <th>Age</th>
+	      <th>Sex</th>
+	      <th>ScanDate</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    <td>name</td>
+	    <td>age</td>
+	    <td>sex</td>
+	    <td>xxxx-xx-xxxx</td>
+	  </tbody>
+	  
+	</table>
+      </div>
+
+      <h2 style="margin-bottom: 0px">Software Dialog</h2>
+      <img src="pic_report.png" style="width: 800px">
+      <h2>Other Issues</h2>
+      <br>
+      <br>
+      <br>
+
+      <hr>
+
+      <p style="float: right; margin-right: 100px; margin-top: 0px; color: gray;">
+	id:fkoaheiugbnwieuehfiwea
+      </p>
+
+    </div>
+  </body>
+  
+</html>

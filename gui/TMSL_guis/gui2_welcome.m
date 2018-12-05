@@ -22,7 +22,7 @@ function varargout = gui2_welcome(varargin)
 
 % Edit the above text to modify the response to help gui2_welcome
 
-% Last Modified by GUIDE v2.5 03-Dec-2018 10:36:27
+% Last Modified by GUIDE v2.5 05-Dec-2018 14:25:54
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -118,7 +118,7 @@ set(handles.pushbutton7, 'Enable', 'Off')
 set(handles.checkbox1, 'Enable', 'Off')
 
 set(handles.pushbutton8, 'ForegroundColor', 'Black')
-set(handles.pushbutton8, 'String', 'TMS 个 体 靶 点 分 析')
+set(handles.pushbutton8, 'String', '个 体 TMS 靶 点 分 析')
 set(handles.pushbutton8, 'Enable', 'Off')
 set(handles.checkbox3, 'Enable', 'Off')
 
@@ -126,6 +126,8 @@ set(handles.uipanel9, 'Visible', 'Off')
 set(handles.uipanel5, 'Visible', 'Off')
 set(handles.uipanel6, 'Visible', 'Off')
 
+set(handles.pushbutton9, 'Visible', 'Off')
+set(handles.pushbutton10, 'Visible', 'Off')
 
 % --- Executes on button press in pushbutton2.
 function pushbutton2_Callback(hObject, eventdata, handles)
@@ -180,8 +182,10 @@ hm_max = fun_plot_artificial(appPath,...
     new_pathname, handles.axes1, handles.axes2)
 if (sum(hm_max(1:3) < 3) == 3) && (sum(hm_max(4:6) < 1) == 3)
     set(handles.text10, 'String', sprintf('头动小于阈值\n\n合格'))
+    set(handles.pushbutton9, 'UserData', 'Pass')
 else
     set(handles.text10, 'String', sprintf('头动大于阈值\n\n不合格'))
+    set(handles.pushbutton9, 'UserData', 'Fail')
 end
 
 set(hObject, 'ForegroundColor', 'black')
@@ -228,6 +232,8 @@ load(fullfile(appPath, 'resources', 'cm.mat'), 'cm')
 [max_p, max_amy_mm] = fun_findmax_amy(appPath,...
     new_pathname, gg, hh, cm, handles.axes3, handles);
 max_amy_mm
+mm.max_amy_mm = max_amy_mm;
+set(handles.pushbutton10, 'UserData', mm)
 set(hObject, 'UserData', max_p)
 
 set(hObject, 'ForegroundColor', 'black')
@@ -265,6 +271,10 @@ max_p = get(handles.pushbutton7, 'UserData');
 max_c_mm = fun_findmax_corr(appPath, new_pathname, max_p, cm, handles);
 max_c_mm
 
+mm = get(handles.pushbutton10, 'UserData');
+mm.max_c_mm = max_c_mm;
+set(handles.pushbutton10, 'UserData', mm)
+
 set(handles.pushbutton8, 'ForegroundColor', [0.64, 0.08, 0.18])
 set(hObject, 'String', '开始个体TMS靶点分析')
 
@@ -275,8 +285,8 @@ set(handles.text5, 'String',...
     max_c_mm(1), max_c_mm(2), max_c_mm(3)))
 set(handles.text5, 'Visible', 'On')
 
-pic_path = fullfile(new_pathname, 'pic_report.png');
-print(handles.figure1, '-dpng', '-r600', pic_path)
+set(handles.pushbutton10, 'Visible', 'On')
+set(handles.pushbutton9, 'Visible', 'On')
 
 
 % --- Executes on button press in pushbutton3.
@@ -510,3 +520,33 @@ function checkbox3_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox3
+
+
+% --- Executes on button press in pushbutton9.
+function pushbutton9_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton9 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+ud = get(handles.pushbutton1, 'UserData');
+firstfile = fullfile(ud.pathname, ud.filenames{1});
+s = md5(firstfile);
+appPath = fileparts(which('TMSLocation'));
+new_pathname = fullfile(appPath, 'subjects', s);
+
+pic_path = fullfile(new_pathname, 'pic_report.png');
+print(handles.figure1, '-dpng', '-r600', pic_path)
+
+fun_print_reporth5(appPath, new_pathname, firstfile, handles)
+
+
+% --- Executes on button press in pushbutton10.
+function pushbutton10_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton10 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+appPath = fileparts(which('TMSLocation'));
+fpath = fullfile(appPath, 'resources',...
+    'SurfTemplate', 'BrainMesh_ICBM152_smoothed.nv');
+fun_plot_3D_surface(fpath, get(hObject, 'UserData'))
