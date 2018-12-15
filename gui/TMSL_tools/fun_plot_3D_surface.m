@@ -33,11 +33,11 @@ end
 
 figure,
 set(gca, 'Position', [0, 0, 1, 1])
-daspect([1, 1, 1])
 
 volume = trisurf(surf.tri,...
     surf.coord(1, :), surf.coord(2, :), surf.coord(3, :),...
     'EdgeColor', 'none');
+daspect([1, 1, 1])
 
 hold on
 
@@ -57,7 +57,6 @@ hold off
 
 shading('interp')
 lighting('phong')
-camlight('right')
 material('dull')
 
 axis off;
@@ -76,7 +75,9 @@ axis vis3d off;
 
 set(gca, 'View', [0, 90])
 
+camlight('right')
 set(gcf, 'WindowButtonMotionFcn', @ButttonMotionFcn)
+set(gcf, 'WindowButtonDownFcn', @ButttonDownFcn)
 
 text(mm.max_amy_mm(1), mm.max_amy_mm(2), mm.max_amy_mm(3), 'EffectSpot')
 text(mm.max_c_mm(1), mm.max_c_mm(2), mm.max_c_mm(3), 'TargetSpot')
@@ -90,6 +91,16 @@ cp = get_cp(gcf);
 az = mod(720*cp(1), 360);
 el = 180*(cp(2)-0.5);
 set(gca, 'View', [az, el])
+end
+
+function ButttonDownFcn(src, event)
+c = get(gca, 'Children');
+delete(findobj(c, 'Type', 'light'))
+azel = get(gca, 'View');
+if azel(1)>90 && azel(1) <270
+    azel(1) = azel(1) + 180;
+end
+camlight(azel(1), azel(2));
 end
 
 function cp = get_cp(fig)
