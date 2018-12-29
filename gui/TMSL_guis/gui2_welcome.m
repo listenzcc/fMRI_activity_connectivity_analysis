@@ -155,10 +155,20 @@ subject_name = sprintf('%s %s',...
     DicomInfo.PatientName.GivenName);
 file_mod_date = DicomInfo.FileModDate;
 subject_id = sprintf('%s, %s', subject_name, file_mod_date);
-set(handles.popupmenu1, 'String', sprintf('%s\n%s',...
-    get(handles.popupmenu1, 'String'), subject_id))
-set_subjects(subject_id) = new_pathname;
-set(handles.popupmenu1, 'UserData', set_subjects);
+
+if ~set_subjects.isKey(subject_id)
+    old_strings = get(handles.popupmenu1, 'String');
+    new_strings = repmat(' ', size(old_strings, 1)+1,...
+        max(size(old_strings, 2), size(subject_id, 2)));
+    new_strings(1:end-1, 1:size(old_strings, 2)) = old_strings;
+    new_strings(end, 1:size(subject_id, 2)) = subject_id;
+    set(handles.popupmenu1, 'String', new_strings)
+    set_subjects(subject_id) = new_pathname;
+    set(handles.popupmenu1, 'UserData', set_subjects);
+end
+
+set(handles.popupmenu1, 'Enable', 'off')
+set(handles.pushbutton1, 'Enable', 'off')
 
 set(hObject, 'String', '(1/7) 数 据 读 取 中 ...')
 pause(1)
@@ -202,6 +212,9 @@ set(handles.pushbutton7, 'Enable', 'On')
 set(handles.checkbox1, 'Enable', 'On')
 set(handles.uipanel1, 'ShadowColor', [0.64, 0.08, 0.18])
 
+set(handles.popupmenu1, 'Enable', 'on')
+set(handles.pushbutton1, 'Enable', 'on')
+
 
 % --- Executes on button press in pushbutton7.
 function pushbutton7_Callback(hObject, eventdata, handles)
@@ -214,6 +227,9 @@ firstfile = fullfile(ud.pathname, ud.filenames{1});
 s = md5(firstfile);
 appPath = fileparts(which('TMSLocation'));
 new_pathname = fullfile(appPath, 'subjects', s);
+
+set(handles.popupmenu1, 'Enable', 'off')
+set(handles.pushbutton1, 'Enable', 'off')
 
 set(hObject, 'String', '(6/7) 激 活 点 分 析 中 ...')
 pause(1)
@@ -251,6 +267,8 @@ set(handles.pushbutton8, 'String', '开始个体TMS靶点分析')
 set(handles.pushbutton8, 'Enable', 'On')
 set(handles.checkbox3, 'Enable', 'On')
 
+set(handles.popupmenu1, 'Enable', 'on')
+set(handles.pushbutton1, 'Enable', 'on')
 
 % --- Executes on button press in pushbutton8.
 function pushbutton8_Callback(hObject, eventdata, handles)
@@ -263,6 +281,9 @@ firstfile = fullfile(ud.pathname, ud.filenames{1});
 s = md5(firstfile);
 appPath = fileparts(which('TMSLocation'));
 new_pathname = fullfile(appPath, 'subjects', s);
+
+set(handles.popupmenu1, 'Enable', 'off')
+set(handles.pushbutton1, 'Enable', 'off')
 
 set(hObject, 'String', '(7/7) TMS 靶 点 分 析 中 ...')
 pause(1)
@@ -287,6 +308,9 @@ set(handles.text5, 'Visible', 'On')
 
 set(handles.pushbutton10, 'Visible', 'On')
 set(handles.pushbutton9, 'Visible', 'On')
+
+set(handles.popupmenu1, 'Enable', 'on')
+set(handles.pushbutton1, 'Enable', 'on')
 
 
 % --- Executes on button press in pushbutton3.
@@ -378,7 +402,7 @@ function popupmenu1_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns popupmenu1 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenu1
 contents = cellstr(get(hObject,'String'));
-str = contents{get(hObject,'Value')};
+str = contents{get(hObject,'Value')}
 
 reset_analysis(handles)
 
@@ -511,6 +535,8 @@ function togglebutton2_Callback(hObject, eventdata, handles)
 %     set(handles.pushbutton1, 'Enable', 'On')
 %     set(handles.popupmenu1, 'Enable', 'Off')
 % end
+set(handles.popupmenu1, 'Enable', 'on')
+set(handles.pushbutton1, 'Enable', 'on')
 
 
 % --- Executes on button press in checkbox3.
