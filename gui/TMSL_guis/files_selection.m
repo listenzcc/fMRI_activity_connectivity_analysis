@@ -213,9 +213,13 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 ud = struct;
 ud.pathname = get(handles.uipanel1, 'Title');
 ud.filenames = get(handles.listbox1, 'String');
-handles.output = ud;
-guidata(hObject, handles)
-uiresume(handles.figure1)
+if isempty(ud.filenames)
+    errordlg('Empty folder selected. please check!')
+else
+    handles.output = ud;
+    guidata(hObject, handles)
+    uiresume(handles.figure1)
+end
 
 
 % --- Executes when user attempts to close figure1.

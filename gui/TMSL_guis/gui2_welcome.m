@@ -85,7 +85,12 @@ catch
 end
 firstfile = fullfile(ud.pathname, ud.filenames{1});
 
-di = dicominfo(firstfile);
+try
+    di = dicominfo(firstfile);
+catch
+    errordlg('Wrong DICOM files, please check!')
+    return
+end
 str = sprintf('Name: %s  %s',...
     di.PatientName.FamilyName, di.PatientName.GivenName);
 str = sprintf('%s\nSex:  %s', str, di.PatientSex);

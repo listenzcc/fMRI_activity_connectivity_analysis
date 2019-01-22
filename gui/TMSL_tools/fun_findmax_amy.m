@@ -72,7 +72,7 @@ n = length(cond.onset);
 for j = 1 : n
     rectangle('Position',...
         [cond.onset(j)/TR, yl(1), cond.duration(j)/TR, yl(2)-yl(1)],...
-        'facecolor', 0.5+zeros(1, 4), 'edgecolor', 0.5+zeros(1, 4))
+        'facecolor', 0.7+zeros(1, 3), 'edgecolor', 0.7+zeros(1, 3))
 end
 
 %% plot 3D volume
