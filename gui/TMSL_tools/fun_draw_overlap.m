@@ -17,7 +17,7 @@ img_over = img_over / m;
 
 % ¹Ú×´Î»
 ud = get(axe1, 'UserData');
-slice = ud.TMP;
+slice = get(ud.TMP);
 TMP_ = slice.CData;
 for j = 1 : sz(1)
     for k = 1 : sz(3)
@@ -37,7 +37,7 @@ set(ud.TMP, 'CData', TMP_)
 
 % Ê¸×´Î»
 ud = get(axe2, 'UserData');
-slice = ud.TMP;
+slice = get(ud.TMP);
 TMP_ = slice.CData;
 for j = 1 : sz(2)
     for k = 1 : sz(3)
@@ -57,7 +57,7 @@ set(ud.TMP, 'CData', TMP_)
 
 % ºá¶ÏÎ»
 ud = get(axe3, 'UserData');
-slice = ud.TMP;
+slice = get(ud.TMP);
 TMP_ = slice.CData;
 for j = 1 : sz(1)
     for k = 1 : sz(2)
