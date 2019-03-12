@@ -116,8 +116,8 @@ if azel(1)>90 && azel(1) <270
     azel(1) = azel(1) + 180;
 end
 camlight(azel(1), azel(2));
-% c = get(gca, 'Children');
-% set(findobj(c, 'Type', 'light'), 'Color', rand(1, 3))
+c = get(gca, 'Children');
+set(findobj(c, 'Type', 'light'), 'Color', rand(1, 3))
 end
 
 function cp = get_cp(fig)

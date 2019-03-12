@@ -176,23 +176,23 @@ set(handles.popupmenu1, 'Enable', 'off')
 set(handles.pushbutton1, 'Enable', 'off')
 
 set(hObject, 'String', '(1/7) 数 据 读 取 中 ...')
-pause(1)
+pause(0.2)
 fun_preprocess_1(appPath, new_pathname, ud.pathname, ud.filenames, hObject)
 
 set(hObject, 'String', '(2/7) 功 能 像 对 齐 中 ...')
-pause(1)
+pause(0.2)
 fun_preprocess_2(appPath, new_pathname, hObject)
 
 set(hObject, 'String', '(3/7) 功 能 结 构 配 准 中 ...')
-pause(1)
+pause(0.2)
 fun_preprocess_3(appPath, new_pathname, hObject)
 
 set(hObject, 'String', '(4/7) 功 能 像 平 滑 中 ...')
-pause(1)
+pause(0.2)
 fun_preprocess_4(appPath, new_pathname, hObject)
 
 set(hObject, 'String', '(5/7) 头 动 误 差 统 计 ...')
-pause(1)
+pause(0.2)
 hm_max = fun_plot_artificial(appPath,...
     new_pathname, handles.axes1, handles.axes2)
 if (sum(hm_max(1:3) < 3) == 3) && (sum(hm_max(4:6) < 1) == 3)
@@ -463,6 +463,7 @@ subject_dir = fullfile(appPath, 'subjects');
 [fname_map, pre_map, ext_map, path_map] = fun_parse_files_in_path(subject_dir);
 
 set_subjects = containers.Map;
+cell_subject_id = {};
 for k = keys(path_map)
     str_MD5 = k{1}; % MD5 dirname
     [fname_map, pre_map, ext_map, path_map] =...
@@ -475,10 +476,14 @@ for k = keys(path_map)
             DicomInfo.PatientName.GivenName);
         file_mod_date = DicomInfo.FileModDate;
         subject_id = sprintf('%s, %s', subject_name, file_mod_date);
-        set(hObject, 'String', sprintf('%s\n%s',...
-            get(hObject, 'String'), subject_id))
+        reverse = sprintf('%70s', subject_id(end:-1:1));
+        cell_subject_id{length(cell_subject_id)+1, 1} = reverse(end:-1:1);
         set_subjects(subject_id) = fullfile(subject_dir, str_MD5);
     end
+end
+cell2mat(cell_subject_id)
+if ~isempty(cell_subject_id)
+    set(hObject, 'String', cell2mat(cell_subject_id))
 end
 set(hObject, 'UserData', set_subjects)
 

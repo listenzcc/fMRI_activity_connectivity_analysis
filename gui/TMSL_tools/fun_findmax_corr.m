@@ -1,7 +1,7 @@
 function max_c_mm = fun_findmax_corr(appPath, pathname, max_p, cm, handles)
 
 %% get all voxels in ROI as mm
-ROIfile = fullfile(appPath, 'resources', 'ROIs', 'ROI1.nii');
+ROIfile = fullfile(appPath, 'resources', 'ROIs', 'roi_ba_9_46.nii');
 set_mm = fun_get_mmgrid_ROI(ROIfile);
 
 %% load 4D functional image
