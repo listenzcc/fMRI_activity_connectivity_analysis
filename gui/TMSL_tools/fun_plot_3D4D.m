@@ -1,4 +1,4 @@
-function fig = fun_plot_3D4D(TMP_fname, img_4D, img_over, v_4D, mm, cond, cm, threshold, dummy)
+function fig = fun_plot_3D4D(TMP_fname, img_4D, v_4D, img_over, mat_over, mm, cond, cm, threshold, dummy)
 
 if nargin < 9 || isempty(dummy)
     isdummy = false;
@@ -10,7 +10,6 @@ v_TMP = spm_vol(TMP_fname);
 mat_TMP = v_TMP.mat;
 img_TMP = spm_read_vols(v_TMP);
 mat_4D = v_4D.mat;
-mat_over = mat_4D;
 
 if nargin < 8 ||  isempty(threshold)
     p = floor(fun_mm2position(mm, mat_over));

@@ -86,7 +86,7 @@ set(gca, 'XLim', [1, len])
 set(gca, 'Box', 'Off')
 title('效应点活动曲线')
 
-TMP_fname = fullfile(appPath, 'resources', 'canonical', 'avg152T1.nii');
+TMP_fname = fullfile(appPath, 'resources', 'canonical', 'single_subj_T1.nii');
 cond.TR = TR;
 
 dummy = struct;
@@ -96,7 +96,7 @@ dummy.axe2 = handles.axes_2;
 dummy.axe3 = handles.axes_3;
 dummy.axe4 = []; % handles.axes_4;
 
-fig = fun_plot_3D4D(TMP_fname, dd, d_spmT, v_spmT, max_mm, cond, cm, [], dummy);
+fig = fun_plot_3D4D(TMP_fname, dd, v_spmT, d_spmT, v_spmT.mat, max_mm, cond, cm, [], dummy);
 % set(fig, 'NumberTitle', 'Off', 'Name', '杏仁核中的最强激活位置')
 
 end
