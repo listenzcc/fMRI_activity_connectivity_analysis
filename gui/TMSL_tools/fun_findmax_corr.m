@@ -29,6 +29,9 @@ ROI_ts = [];
 ROI_p = [];
 for k = keys(set_mm)
     mm = fun_str2arr(k{1});
+    if mm(3) < 15
+        continue
+    end
     p = fun_mm2position(mm, v_4D.mat);
     p = floor(p);
     if ~check(p, v_4D.dim)
@@ -57,8 +60,12 @@ if get(handles.checkbox3, 'Value')
     ROI_ts = fun_regout(ROI_ts, global_ts);
 end
 
+ROI_p_ = ROI_p;
+ROI_p_(1, :) = ROI_p_(1, :) * 3;
+ROI_p_(2, :) = ROI_p_(2, :) * 3;
+ROI_p_(3, :) = ROI_p_(3, :) * 4;
 c = fun_corr(max_ts, ROI_ts);
-[a, b] = max(c);
+[a, b] = max(c .* diag(ROI_p_'*ROI_p_)');
 max_c_p = ROI_p(:, b);
 
 %% plot corr values
@@ -66,7 +73,7 @@ img_over = zeros(v_ROIfile.dim);
 mat_over = v_ROIfile.mat;
 len = size(ROI_p, 2);
 for j = 1 : len
-    p = ROI_p(:, j)
+    p = ROI_p(:, j);
     img_over(p(1), p(2), p(3)) = c(j);
 end
 
