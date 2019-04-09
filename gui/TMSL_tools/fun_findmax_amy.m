@@ -33,7 +33,7 @@ for pp = keys(set_p)
 end
 mp = max_p;
 % expand one voxel
-k = 1;
+k = 0;
 for a = -k : k
     for b = -k : k
         for c = -k : k
@@ -60,6 +60,7 @@ for j = 1 : len
 end
 dd = spm_read_vols(fvols);
 ts = squeeze(dd(max_p(1), max_p(2), max_p(3), :));
+ts = spm_detrend(ts, 1);
 set(gcf, 'CurrentAxes', axe_activity)
 len = size(ts, 1);
 x = 1:len;

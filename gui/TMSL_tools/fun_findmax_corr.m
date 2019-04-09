@@ -7,6 +7,9 @@ v_ROIfile = spm_vol(ROIfile);
 
 %% load 4D functional image
 funpath = fullfile(pathname, '_____preprocessed_4');
+d = dir(fullfile(funpath, 'rp_*.txt'));
+hmtxt = fullfile(funpath, d(1).name);
+hm = load(hmtxt);
 load(fullfile(funpath, 'fun_filenames.mat'), 'fun_filenames')
 len = length(fun_filenames);
 for j = 1 : len
@@ -14,14 +17,67 @@ for j = 1 : len
 end
 v_4D = fvols(1);
 % v_ROIfile = v_4D;
-mat_4D = v_4D.mat;
+% mat_4D = v_4D.mat;
 img_4D = spm_read_vols(fvols);
-% sz = v_4D.dim;
-% sz = size(img_4D);
-% sz = sz(1:3);
+
+%% load inbrain mask
+maskpath = fullfile(pathname, '_____GLM_1', 'g1h0');
+v_mask = spm_vol(fullfile(maskpath, 'mask.nii'));
+inbrain_mask = spm_read_vols(v_mask);
 
 %% max GLM time series
 max_ts = get_ts(img_4D, max_p);
+mt = max_ts;
+sz = v_4D.dim;
+c = inbrain_mask;
+global_ts = get_global(img_4D);
+if get(handles.checkbox3, 'Value')
+    mt = fun_regout(mt, global_ts);
+end
+mt = myfilter(mt);
+
+% amyfile = fullfile(appPath, 'resources', 'ROIs', 'amy.nii');
+% set_mm_amy = fun_get_mmgrid_ROI(amyfile);
+% set_p = containers.Map;
+% for k = keys(set_mm_amy)
+%     mm = fun_str2arr(k{1});
+%     p = fun_mm2position(mm, v_4D.mat);
+%     p = floor(p);
+%     if ~check(p, v_4D.dim)
+%         continue
+%     end
+%     set_p(fun_arr2str(p)) = 1;
+% end
+% mt = mt - mt;
+% for k = keys(set_p)
+%     mt = mt + get_ts(img_4D, fun_str2arr(k{1}));
+% end
+% mt = fun_regout(mt, global_ts);
+% mt = myfilter(mt);
+
+% for d1 = 1 : sz(1)
+%     for d2 = 1 : sz(2)
+%         for d3 = 1 : sz(3)
+%             if inbrain_mask(d1, d2, d3) == 0
+%                 continue
+%             end
+%             ts = squeeze(img_4D(d1, d2, d3, :));
+%             if get(handles.checkbox3, 'Value')
+%                 ts = fun_regout(ts, global_ts);
+%             end
+%             ts = myfilter(ts);
+%             c(d1, d2, d3) = fun_corr(mt, ts);
+%         end
+%     end
+% end
+% v_tmp = v_4D;
+% v_tmp.fname = 'FCmap.nii';
+% v_tmp.dt(1) = 16;
+% spm_write_vol(v_tmp, c);
+% 
+% f = gcf;
+% xjview(v_tmp.fname)
+% figure(f)
 
 %% time series in ROI
 % set_p = containers.Map;
@@ -38,6 +94,9 @@ for k = keys(set_mm)
         continue
     end
     ts = get_ts(img_4D, p);
+    if get(handles.checkbox3, 'Value')
+        ts = fun_regout(ts, global_ts);
+    end
     ROI_ts = [ROI_ts, ts];
     p = fun_mm2position(mm, v_ROIfile.mat);
     p = floor(p);
@@ -55,8 +114,6 @@ end
 % end
 
 if get(handles.checkbox3, 'Value')
-    global_ts = get_global(img_4D);
-    max_ts = fun_regout(max_ts, global_ts);
     ROI_ts = fun_regout(ROI_ts, global_ts);
 end
 
@@ -64,8 +121,9 @@ ROI_p_ = ROI_p;
 ROI_p_(1, :) = ROI_p_(1, :) * 3;
 ROI_p_(2, :) = ROI_p_(2, :) * 3;
 ROI_p_(3, :) = ROI_p_(3, :) * 4;
-c = fun_corr(max_ts, ROI_ts);
-[a, b] = max(c .* diag(ROI_p_'*ROI_p_)');
+c = fun_corr(mt, myfilter(ROI_ts));
+[a, b] = max(abs(c) .* (diag(ROI_p_'*ROI_p_)').^0.5);
+% [a, b] = max(abs(c));
 max_c_p = ROI_p(:, b);
 
 %% plot corr values
@@ -74,7 +132,7 @@ mat_over = v_ROIfile.mat;
 len = size(ROI_p, 2);
 for j = 1 : len
     p = ROI_p(:, j);
-    img_over(p(1), p(2), p(3)) = c(j);
+    img_over(p(1), p(2), p(3)) = abs(c(j));
 end
 
 TMP_fname = fullfile(appPath, 'resources', 'canonical', 'single_subj_T1.nii');
@@ -92,6 +150,40 @@ dummy.axe4 = []; % handles.axes_8;
 
 fig = fun_plot_3D4D(TMP_fname, img_4D, v_4D, img_over, mat_over, max_c_mm, cond, cm, 0, dummy);
 % set(fig, 'NumberTitle', 'Off', 'Name', 'MPFC中最强功能连接位置，即TMS靶点')
+end
+
+function new_ts = myfilter(ts)
+ts = spm_detrend(ts, 1);
+new_ts = ts;
+
+% design = zeros(90, 1);
+% design(15+1:30) = 1;
+% design(45+1:60) = 1;
+% design(75+1:90) = 1;
+% design = conv(design, spm_hrf(2), 'same');
+% df = fft(design);
+% f = fft(ts);
+% % f = f .* (df~=0);
+% f = f .* abs(df);
+% new_ts = ifft(f);
+
+% freqs = linspace(0, 0.5, length(ts));
+% x = 1;
+% while freqs(x) < 1/30
+%     x = x + 1;
+% end
+% f = fft(ts);
+% f(1:x+1, :) = 0;
+% f(end-x+1:end, :) = 0;
+% new_ts = ifft(f);
+
+% freqs = linspace(0, 0.5, length(ts));
+% freqs(freqs<0.01) = 0;
+% freqs(freqs>0.08) = 0;
+% freqs = freqs + freqs(end:-1:1);
+% f = fft(ts);
+% f(freqs==0) = 0;
+% new_ts = ifft(f);
 end
 
 function c = get_ts(a, b)
