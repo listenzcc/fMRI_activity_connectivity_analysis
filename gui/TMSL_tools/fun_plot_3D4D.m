@@ -163,7 +163,11 @@ end
 %% handel Mouse Motion
 function ButttonMotionFcn(src, event)
 user_data = get(gcf, 'UserData');
-axe1 = user_data.axe1;
+try
+    axe1 = user_data.axe1;
+catch
+    return
+end
 axe2 = user_data.axe2;
 axe3 = user_data.axe3;
 axe4 = user_data.axe4;
