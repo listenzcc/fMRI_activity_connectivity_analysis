@@ -30,7 +30,7 @@ for j = 1 : sz(1)
         if v <= threshold
             continue
         end
-        TMP_(k, j) = uint8(128 + v*127);
+        TMP_(k, end-j+1) = uint8(128 + v*127);
     end
 end
 set(ud.TMP, 'CData', TMP_)
@@ -70,7 +70,7 @@ for j = 1 : sz(1)
         if v <= threshold
             continue
         end
-        TMP_(j, k) = uint8(128 + v*127);
+        TMP_(j, end-k+1) = uint8(128 + v*127);
     end
 end
 set(ud.TMP, 'CData', TMP_)

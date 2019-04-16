@@ -166,8 +166,10 @@ dummy.axe4 = []; % handles.axes_8;
 
 f = gcf;
 fun_plot_3D4D(TMP_fname, img_4D, v_4D, img_over, mat_over, max_c_mm, cond, cm, 0, dummy);
-fig = fun_plot_3D4D(TMP_fname, img_4D, v_4D, img_over, mat_over, max_c_mm, cond, cm, 0, []);
-set(fig, 'NumberTitle', 'Off', 'Name', 'MPFC中最强功能连接位置，即TMS靶点')
+if get(handles.checkbox4, 'Value')
+    fig = fun_plot_3D4D(TMP_fname, img_4D, v_4D, img_over, mat_over, max_c_mm, cond, cm, 0, []);
+    set(fig, 'NumberTitle', 'Off', 'Name', 'MPFC中最强功能连接位置，即TMS靶点')
+end
 figure(f)
 end
 

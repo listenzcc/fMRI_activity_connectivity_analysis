@@ -22,7 +22,7 @@ function varargout = gui2_welcome(varargin)
 
 % Edit the above text to modify the response to help gui2_welcome
 
-% Last Modified by GUIDE v2.5 05-Dec-2018 14:25:54
+% Last Modified by GUIDE v2.5 16-Apr-2019 12:25:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -126,6 +126,7 @@ set(handles.pushbutton8, 'ForegroundColor', 'Black')
 set(handles.pushbutton8, 'String', '个 体 TMS 靶 点 分 析')
 set(handles.pushbutton8, 'Enable', 'Off')
 set(handles.checkbox3, 'Enable', 'Off')
+set(handles.checkbox4, 'Enable', 'Off')
 
 set(handles.uipanel9, 'Visible', 'Off')
 set(handles.uipanel5, 'Visible', 'Off')
@@ -271,6 +272,7 @@ set(handles.pushbutton8, 'ForegroundColor', [0.64, 0.08, 0.18])
 set(handles.pushbutton8, 'String', '开始个体TMS靶点分析')
 set(handles.pushbutton8, 'Enable', 'On')
 set(handles.checkbox3, 'Enable', 'On')
+set(handles.checkbox4, 'Enable', 'On')
 
 set(handles.popupmenu1, 'Enable', 'on')
 set(handles.pushbutton1, 'Enable', 'on')
@@ -586,3 +588,12 @@ appPath = fileparts(which('TMSLocation'));
 fpath = fullfile(appPath, 'resources',...
     'SurfTemplate', 'BrainMesh_ICBM152_smoothed.nv');
 fun_plot_3D_surface(fpath, get(hObject, 'UserData'))
+
+
+% --- Executes on button press in checkbox4.
+function checkbox4_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox4

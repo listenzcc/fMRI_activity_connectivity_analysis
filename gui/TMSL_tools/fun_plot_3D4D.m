@@ -32,6 +32,11 @@ end
 
 fun_draw_TMP(mm, img_TMP, mat_TMP, img_4D, mat_4D,...
     fig, axe1, axe2, axe3, axe4, cm, cond)
+p_over = floor(fun_mm2position(mm, mat_over));
+x = img_over(p_over(1), p_over(2), p_over(3));
+set(get(axe4, 'Title'), 'String',...
+    sprintf('%0.0f, %0.0f, %0.0f, %f',...
+    mm(1), mm(2), mm(3), x))
 
 fun_draw_overlap(mm, img_TMP, mat_TMP, img_over, mat_over,...
     axe1, axe2, axe3, threshold)
@@ -46,7 +51,7 @@ user_data.axe2 = axe2;
 user_data.axe3 = axe3;
 user_data.axe4 = axe4;
 user_data.mm = mm;
-user_data.amymm = mm;
+user_data.defaultmm = mm;
 user_data.img_TMP = img_TMP;
 user_data.mat_TMP = mat_TMP;
 user_data.sz = size(img_TMP);
@@ -67,6 +72,7 @@ axe1 = user_data.axe1;
 axe2 = user_data.axe2;
 axe3 = user_data.axe3;
 axe4 = user_data.axe4;
+sz = user_data.sz;
 set(get(axe4, 'Title'), 'String', '')
 
 is_in_axe123 = 0;
@@ -77,7 +83,7 @@ if in
     mat = user_data.mat_TMP;
     position = fun_mm2position(mm, mat);
     position(3) = cpa(1, 2);
-    position(1) = cpa(1, 1);
+    position(1) = sz(1) - cpa(1, 1) + 1;
     newmm = fun_position2mm(position, mat);
     is_in_axe123 = 1;
 end
@@ -101,14 +107,12 @@ if in
     mat = user_data.mat_TMP;
     position = fun_mm2position(mm, mat);
     position(2) = cpa(1, 2);
-    position(1) = cpa(1, 1);
+    position(1) = sz(1) - cpa(1, 1) + 1;
     newmm = fun_position2mm(position, mat);
     is_in_axe123 = 3;
 end
 
 if is_in_axe123 > 0
-    set(get(axe4, 'Title'), 'String',...
-        sprintf('%0.0f, %0.0f, %0.0f', newmm(1), newmm(2), newmm(3)))
     mat_4D = user_data.mat_4D;
     p_4D = floor(fun_mm2position(newmm, mat_4D));
     img_4D = user_data.img_4D;
@@ -130,6 +134,11 @@ if is_in_axe123 > 0
     
     img_over = user_data.img_over;
     mat_over = user_data.mat_over;
+    p_over = floor(fun_mm2position(newmm, mat_over));
+    x = img_over(p_over(1), p_over(2), p_over(3));
+    set(get(axe4, 'Title'), 'String',...
+        sprintf('%0.0f, %0.0f, %0.0f, %f',...
+        newmm(1), newmm(2), newmm(3), x))
     threshold = user_data.threshold;
     fun_draw_overlap(newmm, img_TMP, mat_TMP, img_over, mat_over,...
         axe1, axe2, axe3, threshold)
@@ -145,16 +154,24 @@ else
     mat_TMP = user_data.mat_TMP;
     img_4D = user_data.img_4D;
     mat_4D = user_data.mat_4D;
+    img_over = user_data.img_over;
+    mat_over = user_data.mat_over;
     cm = user_data.cm;
     cond = user_data.cond;
-    amymm = user_data.amymm;
-    fun_draw_TMP(amymm, img_TMP, mat_TMP, img_4D, mat_4D,...
+    defaultmm = user_data.defaultmm;
+    fun_draw_TMP(defaultmm, img_TMP, mat_TMP, img_4D, mat_4D,...
         gcf, axe1, axe2, axe3, axe4, cm, cond)
+    
+    p_over = floor(fun_mm2position(defaultmm, mat_over));
+    x = img_over(p_over(1), p_over(2), p_over(3));
+    set(get(axe4, 'Title'), 'String',...
+        sprintf('%0.0f, %0.0f, %0.0f, %f',...
+        defaultmm(1), defaultmm(2), defaultmm(3), x))
     
     img_over = user_data.img_over;
     mat_over = user_data.mat_over;
     threshold = user_data.threshold;
-    fun_draw_overlap(amymm, img_TMP, mat_TMP, img_over, mat_over,...
+    fun_draw_overlap(defaultmm, img_TMP, mat_TMP, img_over, mat_over,...
         axe1, axe2, axe3, threshold)
 end
 
@@ -171,6 +188,7 @@ end
 axe2 = user_data.axe2;
 axe3 = user_data.axe3;
 axe4 = user_data.axe4;
+sz = user_data.sz;
 set(get(axe4, 'Title'), 'String', '--')
 ud_axe4 = get(axe4, 'UserData');
 set(ud_axe4.curve_new, 'YData', ud_axe4.ts)
@@ -183,7 +201,7 @@ if in
     mat = user_data.mat_TMP;
     position = fun_mm2position(mm, mat);
     position(3) = cpa(1, 2);
-    position(1) = cpa(1, 1);
+    position(1) = sz(1) - cpa(1, 1) + 1;
     newmm = fun_position2mm(position, mat);
     is_in_axe123 = 1;
 end
@@ -207,7 +225,7 @@ if in
     mat = user_data.mat_TMP;
     position = fun_mm2position(mm, mat);
     position(2) = cpa(1, 2);
-    position(1) = cpa(1, 1);
+    position(1) = sz(1) - cpa(1, 1) + 1;
     newmm = fun_position2mm(position, mat);
     is_in_axe123 = 3;
 end
@@ -226,8 +244,16 @@ if is_in_axe123
         return
     end
     
+    img_over = user_data.img_over;
+    mat_over = user_data.mat_over;
+    p_over = floor(fun_mm2position(newmm, mat_over));
+    x = img_over(p_over(1), p_over(2), p_over(3));
     set(get(axe4, 'Title'), 'String',...
-        sprintf('%0.0f, %0.0f, %0.0f', newmm(1), newmm(2), newmm(3)))
+        sprintf('%0.0f, %0.0f, %0.0f, %f',...
+        newmm(1), newmm(2), newmm(3), x))
+    
+    %     set(get(axe4, 'Title'), 'String',...
+    %         sprintf('%0.0f, %0.0f, %0.0f', newmm(1), newmm(2), newmm(3)))
     set(ud_axe4.curve_new, 'YData',...
         squeeze(img_4D(p_4D(1), p_4D(2), p_4D(3), :)))
     m = mean(img_4D(p_4D(1), p_4D(2), p_4D(3), :));
@@ -244,7 +270,7 @@ if is_in_axe123
     p = floor(position);
     ud = get(axe1, 'UserData');
     ruler = ud.ruler;
-    p1 = p(1);
+    p1 = sz(1) - p(1) + 1;
     p2 = p(3);
     set(ruler.ruler_x, 'XData', [p1, p1])
     set(ruler.ruler_y, 'YData', [p2, p2])
@@ -258,7 +284,7 @@ if is_in_axe123
     
     ud = get(axe3, 'UserData');
     ruler = ud.ruler;
-    p1 = p(1);
+    p1 = sz(1) - p(1) + 1;
     p2 = p(2);
     set(ruler.ruler_x, 'XData', [p1, p1])
     set(ruler.ruler_y, 'YData', [p2, p2])

@@ -15,11 +15,12 @@ p_4D = floor(fun_mm2position(mm, mat_4D));
 ud = struct;
 set(fig, 'CurrentAxes', axe1)
 img_ = squeeze(img_TMP(:, p_TMP(2), :));
+img_ = img_(end:-1:1, :);
 img_slice = img_';
 ud.TMP = imshow(uint8(img_slice*128), 'Colormap', cm);
 set(gca, 'YDir', 'normal')
 title(sprintf('¹Ú×´Î», %0.1f mm', mm(2)))
-p1 = p_TMP(1);
+p1 = size(img_, 1) - p_TMP(1) +1;
 p2 = p_TMP(3);
 hold on
 ruler.ruler_x = line([p1, p1], get(gca, 'ylim'), 'color', 'red');
@@ -53,11 +54,12 @@ set(gca, 'UserData', ud)
 ud = struct;
 set(fig, 'CurrentAxes', axe3)
 img_ = squeeze(img_TMP(:, :, p_TMP(3)));
+img_ = img_(end:-1:1, :);
 img_slice = img_';
 ud.TMP = imshow(uint8(img_slice*128), 'Colormap', cm);
 set(gca, 'YDir', 'normal')
 title(sprintf('ºá¶ÏÎ», %0.1f mm', mm(3)))
-p1 = p_TMP(1);
+p1 = size(img_, 1) - p_TMP(1) +1;
 p2 = p_TMP(2);
 hold on
 ruler.ruler_x = line([p1, p1], get(gca, 'ylim'), 'color', 'red');
